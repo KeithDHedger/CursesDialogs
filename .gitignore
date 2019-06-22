@@ -1,0 +1,15 @@
+Makefile
+CursesDialogs/dialogs/ctk*
+.deps
+.dirstamp
+*.o
+Makefile
+config.h
+config.log
+config.status
+stamp-h1
+
+
+
+
+
