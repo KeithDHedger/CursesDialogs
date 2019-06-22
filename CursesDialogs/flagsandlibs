@@ -1,0 +1,14 @@
+
+AM_CPPFLAGS =	-I$(top_srcdir) \
+			-DPREFIX=\""${prefix}\"" \
+			-DDATADIR=\""${pkgdatadir}"\" \
+			-DSYSCONFDIR=\""${sysconfdir}/${PACKAGE}"\" \
+			-DLIBDIR=\""${libdir}/${PACKAGE}"\" \
+			$(TERMKEY_CFLAGS) \
+			$(CURSESTOOLKIT_CFLAGS)
+
+
+LIBS =	$(TERMKEY_LIBS) \
+		$(CURSESTOOLKIT_LIBS)
+
+
