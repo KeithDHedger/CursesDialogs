@@ -87,7 +87,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = ctkopenfile$(EXEEXT) ctksavefile$(EXEEXT) \
-	ctkinput$(EXEEXT) ctkquery$(EXEEXT)
+	ctkinput$(EXEEXT) ctkquery$(EXEEXT) ctkopenfolder$(EXEEXT)
 subdir = CursesDialogs/dialogs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -107,6 +107,9 @@ ctkinput_LDADD = $(LDADD)
 am_ctkopenfile_OBJECTS = ../src/ctkopenfile.$(OBJEXT)
 ctkopenfile_OBJECTS = $(am_ctkopenfile_OBJECTS)
 ctkopenfile_LDADD = $(LDADD)
+am_ctkopenfolder_OBJECTS = ../src/ctkopenfolder.$(OBJEXT)
+ctkopenfolder_OBJECTS = $(am_ctkopenfolder_OBJECTS)
+ctkopenfolder_LDADD = $(LDADD)
 am_ctkquery_OBJECTS = ../src/ctkquery.$(OBJEXT)
 ctkquery_OBJECTS = $(am_ctkquery_OBJECTS)
 ctkquery_LDADD = $(LDADD)
@@ -143,9 +146,11 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkquery_SOURCES) $(ctksavefile_SOURCES)
+	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
+	$(ctksavefile_SOURCES)
 DIST_SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkquery_SOURCES) $(ctksavefile_SOURCES)
+	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
+	$(ctksavefile_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -281,6 +286,7 @@ AM_CPPFLAGS = -I$(top_srcdir) \
 			$(CURSESTOOLKIT_CFLAGS)
 
 ctkopenfile_SOURCES = ../src/ctkopenfile.cpp
+ctkopenfolder_SOURCES = ../src/ctkopenfolder.cpp
 ctksavefile_SOURCES = ../src/ctksavefile.cpp
 ctkinput_SOURCES = ../src/ctkinput.cpp
 ctkquery_SOURCES = ../src/ctkquery.cpp
@@ -378,6 +384,12 @@ ctkinput$(EXEEXT): $(ctkinput_OBJECTS) $(ctkinput_DEPENDENCIES) $(EXTRA_ctkinput
 ctkopenfile$(EXEEXT): $(ctkopenfile_OBJECTS) $(ctkopenfile_DEPENDENCIES) $(EXTRA_ctkopenfile_DEPENDENCIES) 
 	@rm -f ctkopenfile$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(ctkopenfile_OBJECTS) $(ctkopenfile_LDADD) $(LIBS)
+../src/ctkopenfolder.$(OBJEXT): ../src/$(am__dirstamp) \
+	../src/$(DEPDIR)/$(am__dirstamp)
+
+ctkopenfolder$(EXEEXT): $(ctkopenfolder_OBJECTS) $(ctkopenfolder_DEPENDENCIES) $(EXTRA_ctkopenfolder_DEPENDENCIES) 
+	@rm -f ctkopenfolder$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ctkopenfolder_OBJECTS) $(ctkopenfolder_LDADD) $(LIBS)
 ../src/ctkquery.$(OBJEXT): ../src/$(am__dirstamp) \
 	../src/$(DEPDIR)/$(am__dirstamp)
 
@@ -400,6 +412,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/ctkinput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/ctkopenfile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/ctkopenfolder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/ctkquery.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../src/$(DEPDIR)/ctksavefile.Po@am__quote@
 

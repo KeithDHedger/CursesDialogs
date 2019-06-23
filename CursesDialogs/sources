@@ -1,1 +1,1 @@
-COMMONSRC = ../src/ctkinput.cpp ../src/ctkopenfile.cpp ../src/ctkquery.cpp ../src/ctksavefile.cpp
+COMMONSRC = ../src/ctkinput.cpp ../src/ctkopenfile.cpp ../src/ctkopenfolder.cpp ../src/ctkquery.cpp ../src/ctksavefile.cpp

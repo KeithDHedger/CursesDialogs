@@ -1,8 +1,8 @@
 /*
  *
- * ©K. D. Hedger. Thu 18 Apr 15:58:36 BST 2019 keithdhedger@gmail.com
+ * ©K. D. Hedger. Sun 23 Jun 19:25:39 BST 2019 keithdhedger@gmail.com
 
- * This file (ctkquery.cpp) is part of CursesDialogs.
+ * This file (ctkopenfolder.cpp) is part of CursesDialogs.
 
  * CursesDialogs is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,13 @@
 
 #include "config.h"
 
-#define APPNAME "ctkquery"
+#define APPNAME "ctkopenfolder"
 
 struct option long_options[]=
 	{
 		{"window-name",1,0,'w'},
-		{"body",1,0,'b'},
-		{"title",1,0,'t'},
-		{"buttons",1,0,'b'},
+		{"dialog-title",1,0,'t'},
+		{"start-folder",1,0,'s'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
 		{0, 0, 0, 0}
@@ -38,18 +37,17 @@ struct option long_options[]=
 
 void printhelp(void)
 {
-	printf("Curses based file save dialog\n"
+	printf("Curses based folder chooser\n"
 	"Usage: " APPNAME " [OPTION]\n"
 	" -w, --window-name	Window Name\n"
-	" -q, --query		Query text\n"
-	" -t, --title		Dialog title\n"
-	" -b, --buttons		Buttons\n"
+	" -s, --start-folder	Start Folder\n"
 	" -v, --version		Version\n"
 	" -h, -?, --help		Help\n\n"
 	"Report bugs to keithdhedger@gmail.com\n"
 	"\nExample:\n"
-	"The return code from the app reflects the button selected like so:\n"
-	APPNAME " -w MyWindow -q 'Do What?' -t 'Question?' -b 7 2>/dev/null;echo \"Button pressed $?\"\n" 
+	"To get the reults of the dialog into a bash varable Use:\n"
+	"{ result=$(" APPNAME " -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1\n"
+	"echo $result\n"
 	);
 }
 
@@ -58,64 +56,58 @@ int main(int argc, char **argv)
 	CTK_mainAppClass		*mainApp;
 	std::string				str;
 	CTK_cursesUtilsClass	cu;
+	char					*folder=NULL;
 	int						c;
 	int						option_index;
 	const char				*wname=NULL;
-	const char				*title=NULL;
-	const char				*bodytext="What? ...";
-	int						buttons=1;
+	const char				*dname=NULL;
 
 	while(true)
 		{
 			option_index=0;
 
-			c=getopt_long(argc,argv,"v?h:w:t:q:b:",long_options,&option_index);
-		if(c==-1)
-			break;
-
-		switch(c)
-			{
-				case 'w':
-				wname=optarg;
-				break;
-		
-				case 'q':
-				bodytext=optarg;
-				break;
-		
-				case 'b':
-				buttons=atoi(optarg);
-				break;
-		
-				case 't':
-				title=optarg;
-				break;
-		
-			case 'v':
-				printf(APPNAME " %s\n",VERSION);
-				return 0;
+			c=getopt_long(argc,argv,"v?h:w:s:",long_options,&option_index);
+			if(c==-1)
 				break;
 
-			case '?':
-			case 'h':
-				printhelp();
-				return 0;
-				break;
+			switch(c)
+				{
+					case 'w':
+						wname=optarg;
+						break;
 
-			default:
-				fprintf(stderr,"?? Unknown argument ??\n");
-				return(1);
-			break;
-			}
+					case 's':
+						folder=optarg;
+						break;
+
+					case 'v':
+						printf(APPNAME " %s\n",VERSION);
+						return 0;
+						break;
+
+					case '?':
+					case 'h':
+						printhelp();
+						return 0;
+						break;
+
+					default:
+						fprintf(stderr,"?? Unknown argument ??\n");
+						return(1);
+					break;
+				}
 		}
 
 	mainApp=new CTK_mainAppClass();
 
-	cu.CTK_queryDialog(mainApp,bodytext,wname,title,buttons);
-	buttons=cu.intResult;
-	fprintf(stderr,"%i",cu.intResult);
+
+	cu.CTK_selectFolder(mainApp,wname,folder);
+	if(cu.isValidFile==true)
+		fprintf(stderr,"%s\n",cu.stringResult.c_str());
+	else
+		fprintf(stderr,"");
 
 	SETSHOWCURS;
 	delete mainApp;
-	return(buttons);
+	return(0);
 }

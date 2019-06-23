@@ -15,6 +15,21 @@ echo $result<br>
 ![Alt text](screenshots/openfile.png?raw=true "ctkopenfile")<br>
 
 
+Select a folder:<br>
+ctkopenfolder<br>
+Usage: ctkopenfolder [OPTION]<br>
+ -w, --window-name	Window Name<br>
+ -s, --start-folder	Start Folder<br>
+ -v, --version		Version<br>
+ -h, -?, --help		Help<br>
+<br>
+Example:<br>
+To get the reults of the dialog into a bash varable Use:<br>
+{ result=$(ctkopenfolder -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1<br>
+echo $result<br>
+![Alt text](screenshots/openfolder.png?raw=true "ctkopenfolder")<br>
+
+
 Save a file:<br>
 ctksavefile<br>
 Usage: ctksavefile [OPTION]<br>

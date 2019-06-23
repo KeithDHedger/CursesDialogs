@@ -38,7 +38,7 @@ struct option long_options[]=
 
 void printhelp(void)
 {
-printf("Curses based file save dialog\n"
+	printf("Curses based file save dialog\n"
 	"Usage: " APPNAME " [OPTION]\n"
 	" -w, --window-name	Window Name\n"
 	" -s, --start-folder	Start Folder\n"
