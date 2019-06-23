@@ -9,7 +9,7 @@ Usage: ctkopenfile [OPTION]<br>
  -h, -?, --help		Help<br>
 <br>
 Example:<br>
-To get the reults of the dialog into a bash varable Use:<br>
+To get the results of the dialog into a bash varable Use:<br>
 { result=$(ctkopenfile -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1<br>
 echo $result<br>
 ![Alt text](screenshots/openfile.png?raw=true "ctkopenfile")<br>
@@ -24,7 +24,7 @@ Usage: ctkopenfolder [OPTION]<br>
  -h, -?, --help		Help<br>
 <br>
 Example:<br>
-To get the reults of the dialog into a bash varable Use:<br>
+To get the results of the dialog into a bash varable Use:<br>
 { result=$(ctkopenfolder -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1<br>
 echo $result<br>
 ![Alt text](screenshots/openfolder.png?raw=true "ctkopenfolder")<br>
@@ -40,7 +40,7 @@ Usage: ctksavefile [OPTION]<br>
  -h, -?, --help		Help<br>
 <br>
 Example:<br>
-To get the reults of the dialog into a bash varable Use:<br>
+To get the results of the dialog into a bash varable Use:<br>
 { result=$(ctksavefile -w MyWindow -s /etc -n SaveFileName 2>&1 >&3 3>&-); } 3>&1<br>
 echo $result<br>
 ![Alt text](screenshots/savefile.png?raw=true "ctksavefile")<br>
@@ -58,7 +58,7 @@ Usage: ctkinput [OPTION]<br>
  -h, -?, --help		Help<br>
 <br>
 Example:<br>
-To get the reults of the dialog into a bash varable Use:<br>
+To get the results of the dialog into a bash varable Use:<br>
 { result=$(ctkinput -w MyWindow -b 'Say somthing?' -t 'Input ...' -i 'Some input ...' -c  2>&1 >&3 3>&-); } 3>&1<br>
 echo $result<br>
 The return code from the app also reflects the button seelected like so:<br>
