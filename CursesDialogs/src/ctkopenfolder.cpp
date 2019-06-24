@@ -93,13 +93,13 @@ int main(int argc, char **argv)
 
 					default:
 						fprintf(stderr,"?? Unknown argument ??\n");
+						printhelp();
 						return(1);
 					break;
 				}
 		}
 
 	mainApp=new CTK_mainAppClass();
-
 
 	cu.CTK_selectFolder(mainApp,wname,folder);
 	if(cu.isValidFile==true)
