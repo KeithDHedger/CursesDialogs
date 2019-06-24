@@ -1,5 +1,6 @@
 Makefile
 CursesDialogs/dialogs/ctk*
+CursesDialogs/frontends/ctk*
 .deps
 .dirstamp
 *.o
@@ -9,11 +10,10 @@ config.log
 config.status
 stamp-h1
 autom4te.cache
-CursesDialogs/frontends/
-CursesDialogs/src/Doxyfile
-CursesDialogs/src/html
-CursesDialogs/src/searchdata.xml
-
+CursesDialogs/*/Doxyfile
+CursesDialogs/*/html
+CursesDialogs/*/searchdata.xml
+IGNORE
 
 
 

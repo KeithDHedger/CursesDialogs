@@ -1,6 +1,2 @@
 
-SUBDIRS = CursesDialogs/dialogs
-
-remake:
-	$(shell ./remakesourcelist)
-
+SUBDIRS = CursesDialogs/dialogs CursesDialogs/frontends

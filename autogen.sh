@@ -1,6 +1,5 @@
 #!/bin/bash
 
-./remakesourcelist
 aclocal
 autoheader
 touch NEWS README AUTHORS ChangeLog

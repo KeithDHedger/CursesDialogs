@@ -86,9 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = ctkopenfile$(EXEEXT) ctksavefile$(EXEEXT) \
-	ctkinput$(EXEEXT) ctkquery$(EXEEXT) ctkopenfolder$(EXEEXT)
-subdir = CursesDialogs/dialogs
+bin_PROGRAMS = ctkdump$(EXEEXT)
+subdir = CursesDialogs/frontends
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -101,21 +100,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_ctkinput_OBJECTS = ../dialog-src/ctkinput.$(OBJEXT)
-ctkinput_OBJECTS = $(am_ctkinput_OBJECTS)
-ctkinput_LDADD = $(LDADD)
-am_ctkopenfile_OBJECTS = ../dialog-src/ctkopenfile.$(OBJEXT)
-ctkopenfile_OBJECTS = $(am_ctkopenfile_OBJECTS)
-ctkopenfile_LDADD = $(LDADD)
-am_ctkopenfolder_OBJECTS = ../dialog-src/ctkopenfolder.$(OBJEXT)
-ctkopenfolder_OBJECTS = $(am_ctkopenfolder_OBJECTS)
-ctkopenfolder_LDADD = $(LDADD)
-am_ctkquery_OBJECTS = ../dialog-src/ctkquery.$(OBJEXT)
-ctkquery_OBJECTS = $(am_ctkquery_OBJECTS)
-ctkquery_LDADD = $(LDADD)
-am_ctksavefile_OBJECTS = ../dialog-src/ctksavefile.$(OBJEXT)
-ctksavefile_OBJECTS = $(am_ctksavefile_OBJECTS)
-ctksavefile_LDADD = $(LDADD)
+am_ctkdump_OBJECTS = ../frontends-src/ctkdump.$(OBJEXT)
+ctkdump_OBJECTS = $(am_ctkdump_OBJECTS)
+ctkdump_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -145,12 +132,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
-	$(ctksavefile_SOURCES)
-DIST_SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
-	$(ctksavefile_SOURCES)
+SOURCES = $(ctkdump_SOURCES)
+DIST_SOURCES = $(ctkdump_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -285,11 +268,7 @@ AM_CPPFLAGS = -I$(top_srcdir) \
 			$(TERMKEY_CFLAGS) \
 			$(CURSESTOOLKIT_CFLAGS)
 
-ctkopenfile_SOURCES = ../dialog-src/ctkopenfile.cpp
-ctkopenfolder_SOURCES = ../dialog-src/ctkopenfolder.cpp
-ctksavefile_SOURCES = ../dialog-src/ctksavefile.cpp
-ctkinput_SOURCES = ../dialog-src/ctkinput.cpp
-ctkquery_SOURCES = ../dialog-src/ctkquery.cpp
+ctkdump_SOURCES = ../frontends-src/ctkdump.cpp
 all: all-am
 
 .SUFFIXES:
@@ -303,9 +282,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/../flagsandlibs $(am__co
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu CursesDialogs/dialogs/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu CursesDialogs/frontends/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu CursesDialogs/dialogs/Makefile
+	  $(AUTOMAKE) --gnu CursesDialogs/frontends/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -366,55 +345,27 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-../dialog-src/$(am__dirstamp):
-	@$(MKDIR_P) ../dialog-src
-	@: > ../dialog-src/$(am__dirstamp)
-../dialog-src/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../dialog-src/$(DEPDIR)
-	@: > ../dialog-src/$(DEPDIR)/$(am__dirstamp)
-../dialog-src/ctkinput.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
-	../dialog-src/$(DEPDIR)/$(am__dirstamp)
+../frontends-src/$(am__dirstamp):
+	@$(MKDIR_P) ../frontends-src
+	@: > ../frontends-src/$(am__dirstamp)
+../frontends-src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ../frontends-src/$(DEPDIR)
+	@: > ../frontends-src/$(DEPDIR)/$(am__dirstamp)
+../frontends-src/ctkdump.$(OBJEXT): ../frontends-src/$(am__dirstamp) \
+	../frontends-src/$(DEPDIR)/$(am__dirstamp)
 
-ctkinput$(EXEEXT): $(ctkinput_OBJECTS) $(ctkinput_DEPENDENCIES) $(EXTRA_ctkinput_DEPENDENCIES) 
-	@rm -f ctkinput$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ctkinput_OBJECTS) $(ctkinput_LDADD) $(LIBS)
-../dialog-src/ctkopenfile.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
-	../dialog-src/$(DEPDIR)/$(am__dirstamp)
-
-ctkopenfile$(EXEEXT): $(ctkopenfile_OBJECTS) $(ctkopenfile_DEPENDENCIES) $(EXTRA_ctkopenfile_DEPENDENCIES) 
-	@rm -f ctkopenfile$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ctkopenfile_OBJECTS) $(ctkopenfile_LDADD) $(LIBS)
-../dialog-src/ctkopenfolder.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
-	../dialog-src/$(DEPDIR)/$(am__dirstamp)
-
-ctkopenfolder$(EXEEXT): $(ctkopenfolder_OBJECTS) $(ctkopenfolder_DEPENDENCIES) $(EXTRA_ctkopenfolder_DEPENDENCIES) 
-	@rm -f ctkopenfolder$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ctkopenfolder_OBJECTS) $(ctkopenfolder_LDADD) $(LIBS)
-../dialog-src/ctkquery.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
-	../dialog-src/$(DEPDIR)/$(am__dirstamp)
-
-ctkquery$(EXEEXT): $(ctkquery_OBJECTS) $(ctkquery_DEPENDENCIES) $(EXTRA_ctkquery_DEPENDENCIES) 
-	@rm -f ctkquery$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ctkquery_OBJECTS) $(ctkquery_LDADD) $(LIBS)
-../dialog-src/ctksavefile.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
-	../dialog-src/$(DEPDIR)/$(am__dirstamp)
-
-ctksavefile$(EXEEXT): $(ctksavefile_OBJECTS) $(ctksavefile_DEPENDENCIES) $(EXTRA_ctksavefile_DEPENDENCIES) 
-	@rm -f ctksavefile$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ctksavefile_OBJECTS) $(ctksavefile_LDADD) $(LIBS)
+ctkdump$(EXEEXT): $(ctkdump_OBJECTS) $(ctkdump_DEPENDENCIES) $(EXTRA_ctkdump_DEPENDENCIES) 
+	@rm -f ctkdump$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ctkdump_OBJECTS) $(ctkdump_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../dialog-src/*.$(OBJEXT)
+	-rm -f ../frontends-src/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkinput.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkopenfile.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkopenfolder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkquery.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctksavefile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/ctkdump.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -547,8 +498,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../dialog-src/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ../dialog-src/$(am__dirstamp)
+	-rm -f ../frontends-src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ../frontends-src/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -558,7 +509,7 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../dialog-src/$(DEPDIR)
+	-rm -rf ../frontends-src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -604,7 +555,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../dialog-src/$(DEPDIR)
+	-rm -rf ../frontends-src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

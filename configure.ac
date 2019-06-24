@@ -1,6 +1,6 @@
 #
 #
-AC_INIT([CursesDialogs],[0.0.5],[PROJ],[CursesDialogs])
+AC_INIT([CursesDialogs],[0.0.6],[PROJ],[CursesDialogs])
 
 AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX
@@ -21,5 +21,5 @@ PKG_CHECK_MODULES(CURSESTOOLKIT, $CURSESTOOLKIT_MODULES)
 AC_SUBST(CURSESTOOLKIT_CFLAGS)
 AC_SUBST(CURSESTOOLKIT_LIBS)
 
-AC_OUTPUT(Makefile CursesDialogs/dialogs/Makefile)
+AC_OUTPUT(Makefile CursesDialogs/dialogs/Makefile  CursesDialogs/frontends/Makefile)
 
