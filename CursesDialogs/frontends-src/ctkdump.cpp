@@ -26,6 +26,8 @@
 
 #define APPNAME "ctkdump"
 enum {DEVSRC=1,DEVDEST};
+enum {BTNRUN=0,BTNPRINT,BTNQUIT,BTNABOUT};
+enum {ONFINQUIT=0,ONFINHALT,ONFINRESTART,ONFINNOWT};
 
 struct option long_options[]=
 	{
@@ -37,10 +39,16 @@ struct option long_options[]=
 		{0, 0, 0, 0}
 	};
 
+CTK_mainAppClass		*mainApp;
 std::vector<std::string>	devStrings;
 CTK_cursesChooserClass		*destChooser;
 CTK_cursesTextBoxClass		*commandLine;
 CTK_cursesDropClass			*compressDrop;
+CTK_cursesDropClass			*dumpLvlDrop;
+CTK_cursesDropClass			*finishDrop;
+CTK_cursesInputClass		*blockInp;
+CTK_cursesButtonClass		*button;
+CTK_cursesUtilsClass		cu;
 
 std::string					devLabel;
 std::string					devName;
@@ -48,34 +56,30 @@ int							compressLevel=9;
 int							blockSize=64;
 int							dumpLevel=0;
 
-void printhelp(void)
-{
-	printf("Curses frontend for dump\n"
-	"Usage: " APPNAME " [OPTION]\n"
-	" -w, --window-name	Window Name\n"
-	" -s, --start-folder	Start Folder\n"
-	" -v, --version		Version\n"
-	" -h, -?, --help		Help\n\n"
-	"Report bugs to keithdhedger@gmail.com\n"
-	"\nExample:\n"
-	"To get the reults of the dialog into a bash varable Use:\n"
-	"{ result=$(" APPNAME " -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1\n"
-	"echo $result\n"
-	);
-}
+//void printhelp(void)
+//{
+//	printf("Curses frontend for dump\n"
+//	"Usage: " APPNAME " [OPTION]\n"
+//	" -w, --window-name	Window Name\n"
+//	" -s, --start-folder	Start Folder\n"
+//	" -v, --version		Version\n"
+//	" -h, -?, --help		Help\n\n"
+//	"Report bugs to keithdhedger@gmail.com\n"
+//	"\nExample:\n"
+//	"To get the reults of the dialog into a bash varable Use:\n"
+//	"{ result=$(" APPNAME " -w MyWindow -s /etc 2>&1 >&3 3>&-); } 3>&1\n"
+//	"echo $result\n"
+//	);
+//}
 
-void getDiskList(bool where,const char* command)
+void getDiskList(const char* command)
 {
 	FILE	*fp;
 	char	*buffer=(char*)alloca(PATH_MAX);
 	std::string	str;
 
-	if(where==true)
-		devStrings.clear();
-//	else
-//		destStrings.clear();
+	devStrings.clear();
 
-//	fp=popen("blkid |grep \"ext*\"|grep -i label|awk -F\"UUID\" '{print $1}'","r");
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -88,17 +92,13 @@ void getDiskList(bool where,const char* command)
 								buffer[strlen(buffer)-1]=0;
 						}
 					str=buffer;
-					if(where==true)
-						devStrings.push_back(str);
-//					else
-//						destStrings.push_back(str);
+					devStrings.push_back(str);
 					buffer[0]=0;
 				}
 			pclose(fp);
 		}
 }
 
-// /sbin/dump -z9 -0 -d 64 -f "/media/SkyNet/LinuxBackups/LinuxData.190627" "/dev/sdd1"
 void setCommandLine(void)
 {
 	std::string	str;
@@ -112,7 +112,7 @@ void setCommandLine(void)
 	str+=std::to_string(compressLevel);
 	str+=" -";
 	str+=std::to_string(dumpLevel);
-	str+=" -d";
+	str+=" -b";
 	str+=std::to_string(blockSize);
 	str+=" -f \"";
 	str+=destChooser->folderPath;
@@ -123,112 +123,151 @@ void setCommandLine(void)
 	str+=" ";
 	str+=devName;
 	commandLine->CTK_updateText(str.c_str(),false,false);
-	fprintf(stderr,">>>command=%s<<\n",str.c_str());
 }
 
 void destSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesChooserClass	*ch=static_cast<CTK_cursesChooserClass*>(inst);
-//	std::string				str;
+
 	setCommandLine();
-//	str="dump ";
-//	str+="-z9 ";
-//	str+="-d64 ";
-//	str+=ch->folderPath;
-//	str+="/";
-//	str+=devLabel;
-//	commandLine->CTK_updateText(str.c_str(),false,false);
-//	fprintf(stderr,"folder=%s\nname=%s\npath=%s\n",ch->folderPath.c_str(),ch->fileName.c_str(),ch->filePath.c_str());
-//	fprintf(stderr,">>>command=%s<<\n",str.c_str());
 }
 
 void devSelectCB(void *inst,void *userdata)
 {
-	char						*buffer=(char*)alloca(256);
 	CTK_cursesListBoxClass		*ls=static_cast<CTK_cursesListBoxClass*>(inst);
 	long						ud=(long)ls->listItems[ls->listItemNumber]->userData;
 	std::string					str;
 
-	//fprintf(stderr,"List %i List item '%s' clicked, user data=%p.\n",(long)userdata,ls->listItems[ls->listItemNumber]->label.c_str(),ls->listItems[ls->listItemNumber]->userData);
-	fprintf(stderr,">>%s<<\n",devStrings[ud].substr(0,devStrings[ud].find(":")).c_str());
 	devName=devStrings[ud].substr(0,devStrings[ud].find(":")).c_str();
 	str=devStrings[ud].substr(devStrings[ud].find("LABEL=\"")+7);
-	fprintf(stderr,">>%s<<\n",str.substr(0,str.length()-2).c_str());
 	devLabel=str.substr(0,str.length()-2);
 	setCommandLine();
-	
+}
+
+void dropboxCB(void *inst,void *userdata)
+{
+	CTK_cursesDropClass		*db=static_cast<CTK_cursesDropClass*>(inst);
+	if(userdata==(void*)0)
+		compressLevel=db->selectedItem;
+	if(userdata==(void*)1)
+		dumpLevel=db->selectedItem;
+
+	setCommandLine();
+}
+
+void inputSelectCB(void *inst,void *userdata)
+{
+	CTK_cursesInputClass	*inp=static_cast<CTK_cursesInputClass*>(inst);
+	blockSize=atoi(blockInp->CTK_getText());
+	setCommandLine();
+}
+
+void buttonSelectCB(void *inst,void *userdata)
+{
+	CTK_cursesButtonClass	*btn=static_cast<CTK_cursesButtonClass*>(inst);
+
+	if(userdata==(void*)BTNRUN)
+		{
+			fprintf(stderr,">>>command=%s<<\n",commandLine->CTK_getText().c_str());
+			switch(finishDrop->selectedItem)
+				{
+					case ONFINQUIT:
+						mainApp->runEventLoop=false;
+						break;
+					case ONFINHALT:
+						fprintf(stderr,"shutdown\n");
+						break;
+					case ONFINRESTART:
+						fprintf(stderr,"restart\n");
+						break;
+					default:
+						fprintf(stderr,"nothing\n");
+				}
+		}
+	if(userdata==(void*)BTNQUIT)
+		mainApp->runEventLoop=false;
+	if(userdata==(void*)BTNPRINT)
+		{
+			fprintf(stderr,"%s\n",commandLine->CTK_getText().c_str());
+			mainApp->runEventLoop=false;
+		}
+
+	if(userdata==(void*)BTNABOUT)
+		{
+			cu.CTK_aboutDialog(mainApp,"ctkdump","CTK Dump Frontend","Copyright 2019 K.D.Hedger","keithdhedger@gmail.com","http://keithhedger.freeddns.org","K.D.Hedger",DATADIR "/help/LICENSE");
+			
+		}
+
 }
 
 int main(int argc, char **argv)
 {
-	CTK_mainAppClass		*mainApp;
 	std::string				str;
-	CTK_cursesUtilsClass	cu;
+//	CTK_cursesUtilsClass	cu;
 	char					*folder=NULL;
-	int						c;
-	int						option_index;
-	const char				*wname=NULL;
-	const char				*dname=NULL;
+//	int						c;
+//	int						option_index;
+//	const char				*wname=NULL;
+//	const char				*dname=NULL;
 	CTK_cursesListBoxClass	*srcdevlist=new CTK_cursesListBoxClass();
 	CTK_cursesListBoxClass	*destdirlist=new CTK_cursesListBoxClass();
 	char					buffer[PATH_MAX];
 
-	while(true)
-		{
-			option_index=0;
-
-			c=getopt_long(argc,argv,"v?h:w:s:",long_options,&option_index);
-			if(c==-1)
-				break;
-
-			switch(c)
-				{
-					case 'w':
-						wname=optarg;
-						break;
-
-					case 's':
-						folder=optarg;
-						break;
-
-					case 'v':
-						printf(APPNAME " %s\n",VERSION);
-						return 0;
-						break;
-
-					case '?':
-					case 'h':
-						printhelp();
-						return 0;
-						break;
-
-					default:
-						fprintf(stderr,"?? Unknown argument ??\n");
-						return(1);
-					break;
-				}
-		}
+//	while(true)
+//		{
+//			option_index=0;
+//
+//			c=getopt_long(argc,argv,"v?h:w:s:",long_options,&option_index);
+//			if(c==-1)
+//				break;
+//
+//			switch(c)
+//				{
+//					case 'w':
+//						wname=optarg;
+//						break;
+//
+//					case 's':
+//						folder=optarg;
+//						break;
+//
+//					case 'v':
+//						printf(APPNAME " %s\n",VERSION);
+//						return 0;
+//						break;
+//
+//					case '?':
+//					case 'h':
+//						printhelp();
+//						return 0;
+//						break;
+//
+//					default:
+//						fprintf(stderr,"?? Unknown argument ??\n");
+//						return(1);
+//					break;
+//				}
+//		}
 
 	mainApp=new CTK_mainAppClass();
 	mainApp->colours.fancyGadgets=true;
 	mainApp->colours.listBoxType=INBOX;
+	mainApp->colours.labelBoxType=NOBOX;
 	mainApp->colours.textBoxType=INBOX;
 	mainApp->colours.windowBackCol=BACK_WHITE;
 
+	cu.CTK_splashScreen(mainApp,"CTK Frontend to dump\nPlease wait while I collect disk data ...\n");
+
 //src
-	getDiskList(true,"blkid |grep \"ext*\"|grep -i label|awk -F\"UUID\" '{print $1}'");
-	srcdevlist->CTK_newListBox(3,3,40,10);
+	getDiskList("blkid |grep \"ext*\"|grep -i label|awk -F\"UUID\" '{print $1}'");
+	srcdevlist=mainApp->CTK_addNewListBox(3,3,40,10);
 	srcdevlist->CTK_setEnterDeselects(false);
-	srcdevlist->CTK_setColours(mainApp->colours);
 	for(int j=0;j<devStrings.size();j++)
-		{
-			srcdevlist->CTK_addListItem(devStrings[j].c_str(),(void*)(long)j);
-		}
+		srcdevlist->CTK_addListItem(devStrings[j].c_str(),(void*)(long)j);
 	srcdevlist->CTK_setSelectCB(devSelectCB,(void*)DEVSRC);
-	mainApp->CTK_addListBox(srcdevlist);
+	//srcdevlist->listItemNumber=0;
 
 //dest
-	//getDiskList(false,"mount |grep \"ext\"|awk '{print $3}'");
 	destChooser=new CTK_cursesChooserClass(mainApp,3+40+3,3,40,10);
 	destChooser->CTK_setShowTypes(FOLDERTYPE);
 	destChooser->CTK_setShowHidden(true);
@@ -236,21 +275,55 @@ int main(int argc, char **argv)
 	mainApp->CTK_addChooserBox(destChooser);
 	destChooser->CTK_setSelectCB(destSelectCB,(void*)DEVDEST);
 
-//compress
-	mainApp->CTK_addNewDropDownBox(mainApp,3+40+3+40+3,2,15,1,"Compress Level");
-	compressDrop=mainApp->pages[0].dropDowns[0];
+//compress level
+	compressDrop=mainApp->CTK_addNewDropDownBox(mainApp,3+40+3+40+3,2,22,1,"Compress Level");
 	for(int j=0;j<10;j++)
 		{
-			sprintf(buffer,"Compress %i ",j);
+			sprintf(buffer,"Compress Level %i",j);
 			compressDrop->CTK_addDropItem(buffer);
 		}
-	//compressDrop->CTK_setColours(cs);
-	//mainApp->pages[0].dropDowns[0]->CTK_setSelectCB(dropboxCB,NULL);
-	//mainApp->pages[0].dropDowns[0]->CTK_setItemEnabled(1,false);
+	compressDrop->CTK_setSelectCB(dropboxCB,(void*)0);
+
+//dump level
+	dumpLvlDrop=mainApp->CTK_addNewDropDownBox(mainApp,3+40+3+40+3,4,22,1,"Dump Level");
+	for(int j=0;j<10;j++)
+		{
+			sprintf(buffer,"Dump Level %i",j);
+			dumpLvlDrop->CTK_addDropItem(buffer);
+		}
+	dumpLvlDrop->CTK_setSelectCB(dropboxCB,(void*)1);
+
+//block size
+	mainApp->CTK_addNewLabel(3+40+3+40+3,6,strlen("Block Size:"),1,"Block Size:");
+	blockInp=mainApp->CTK_addNewInput(3+40+3+40+3+strlen("Block Size:")+2,6,4,1,"64");
+	blockInp->CTK_setSelectCB(inputSelectCB,NULL);
+
+//what to do on finish
+	finishDrop=mainApp->CTK_addNewDropDownBox(mainApp,3+40+3+40+3,8,22,1,"On Finish Do Nothing");
+	finishDrop->CTK_addDropItem("On Finish Quit");
+	finishDrop->CTK_addDropItem("On Finish Do Shutdown");
+	finishDrop->CTK_addDropItem("On Finish Do Restart");
+	finishDrop->CTK_addDropItem("On Finish Do Nothing");
+	finishDrop->selectedItem=3;
+
+//run
+	button=mainApp->CTK_addNewButton(cu.CTK_getGadgetPosX(2,mainApp->maxCols-2,4,strlen("Run Dump Command"),0),3+12+3,1,1,"Run Dump Command");
+	button->CTK_setSelectCB(buttonSelectCB,(void*)BTNRUN);
+//print
+	button=mainApp->CTK_addNewButton(cu.CTK_getGadgetPosX(2,mainApp->maxCols-2,4,strlen("Print Dump Command"),1),3+12+3,1,1,"Print Dump Command");
+	button->CTK_setSelectCB(buttonSelectCB,(void*)BTNPRINT);
+//quit
+	button=mainApp->CTK_addNewButton(cu.CTK_getGadgetPosX(2,mainApp->maxCols-2,4,strlen("Quit"),2),3+12+3,1,1,"Quit");
+	button->CTK_setSelectCB(buttonSelectCB,(void*)BTNQUIT);
+//about
+	button=mainApp->CTK_addNewButton(cu.CTK_getGadgetPosX(2,mainApp->maxCols-2,4,strlen("About"),3),3+12+3,1,1,"About");
+	button->CTK_setSelectCB(buttonSelectCB,(void*)BTNABOUT);
 
 //do what
-	mainApp->CTK_addNewTextBox(3,3+12,80+3,1,"",true);
+	mainApp->CTK_addNewTextBox(3,3+12,mainApp->maxCols-4,1,"",true);
 	commandLine=mainApp->pages[0].textBoxes[0];
+	devSelectCB(srcdevlist,NULL);
+	mainApp->CTK_setDefaultGadget(LIST,0);
 	mainApp->CTK_mainEventLoop();
 
 	SETSHOWCURS;
