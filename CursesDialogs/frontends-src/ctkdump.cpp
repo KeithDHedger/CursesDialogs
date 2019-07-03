@@ -29,7 +29,7 @@ enum {DEVSRC=1,DEVDEST};
 enum {BTNRUN=0,BTNPRINT,BTNQUIT,BTNABOUT};
 enum {ONFINQUIT=0,ONFINHALT,ONFINRESTART,ONFINNOWT};
 
-CTK_mainAppClass		*mainApp;
+CTK_mainAppClass			*mainApp;
 std::vector<std::string>	devStrings;
 CTK_cursesChooserClass		*destChooser;
 CTK_cursesTextBoxClass		*commandLine;
@@ -48,8 +48,8 @@ int							dumpLevel=0;
 
 void getDiskList(const char* command)
 {
-	FILE	*fp;
-	char	*buffer=(char*)alloca(PATH_MAX);
+	FILE		*fp;
+	char		*buffer=(char*)alloca(PATH_MAX);
 	std::string	str;
 
 	devStrings.clear();
@@ -79,6 +79,7 @@ void setCommandLine(void)
 	struct tm	tstruct;
 	time_t		now=time(0);
 	char		buf[80];
+
 	tstruct=*localtime(&now);
 
 	str="/sbin/dump";
@@ -121,6 +122,7 @@ void devSelectCB(void *inst,void *userdata)
 void dropboxCB(void *inst,void *userdata)
 {
 	CTK_cursesDropClass		*db=static_cast<CTK_cursesDropClass*>(inst);
+
 	if(userdata==(void*)0)
 		compressLevel=db->selectedItem+1;
 	if(userdata==(void*)1)
@@ -131,6 +133,7 @@ void dropboxCB(void *inst,void *userdata)
 void inputSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesInputClass	*inp=static_cast<CTK_cursesInputClass*>(inst);
+
 	blockSize=atoi(blockInp->CTK_getText());
 	setCommandLine();
 }
@@ -173,6 +176,7 @@ int main(int argc, char **argv)
 	CTK_cursesListBoxClass	*srcdevlist=new CTK_cursesListBoxClass();
 	CTK_cursesListBoxClass	*destdirlist=new CTK_cursesListBoxClass();
 	char					buffer[PATH_MAX];
+	int						maxlen;
 
 	mainApp=new CTK_mainAppClass();
 	mainApp->colours.fancyGadgets=true;
@@ -190,7 +194,6 @@ int main(int argc, char **argv)
 	for(int j=0;j<devStrings.size();j++)
 		srcdevlist->CTK_addListItem(devStrings[j].c_str(),(void*)(long)j);
 	srcdevlist->CTK_setSelectCB(devSelectCB,(void*)DEVSRC);
-	//srcdevlist->listItemNumber=0;
 
 //dest
 	destChooser=new CTK_cursesChooserClass(mainApp,3+40+3,3,40,10);
@@ -232,7 +235,7 @@ int main(int argc, char **argv)
 	finishDrop->CTK_addDropItem("On Finish Do Nothing");
 	finishDrop->selectedItem=3;
 
-	int			maxlen=strlen("Print Dump Command");
+	maxlen=strlen("Print Dump Command");
 	std::string	labelstr=cu.CTK_padString(std::string("Run Dump Command"),maxlen);
 //run
 	button=mainApp->CTK_addNewButton(cu.CTK_getGadgetPosX(2,mainApp->maxCols-2,4,maxlen,0),3+12+3,1,1,labelstr.c_str());
