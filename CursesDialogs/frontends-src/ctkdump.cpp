@@ -160,10 +160,7 @@ void buttonSelectCB(void *inst,void *userdata)
 		mainApp->runEventLoop=false;
 
 	if(userdata==(void*)BTNPRINT)
-		{
-			fprintf(stderr,"%s\n",commandLine->CTK_getText().c_str());
-			mainApp->runEventLoop=false;
-		}
+		fprintf(stderr,"%s\n",commandLine->CTK_getText().c_str());
 
 	if(userdata==(void*)BTNABOUT)
 		cu.CTK_aboutDialog(mainApp,"ctkdump","CTK Dump Frontend","Copyright 2019 K.D.Hedger","keithdhedger@gmail.com","http://keithhedger.freeddns.org","K.D.Hedger",DATADIR "/help/LICENSE");
