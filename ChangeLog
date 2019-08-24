@@ -1,4 +1,5 @@
 0.0.6
+Added time out for imageviewer.
 Added simple framebuffer image viewer, ( Depends on Imagemagick ).
 Printing dump command now doesn't quit app.
 Finished frontend for dump.

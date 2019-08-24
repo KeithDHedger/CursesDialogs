@@ -18,10 +18,6 @@
  * along with CursesDialogs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdlib.h>
-//#define _USEFRAMBUFFER_
 #include <getopt.h>
 #include <cursesGlobals.h>
 
@@ -32,7 +28,6 @@
 struct option long_options[]=
 	{
 		{"pause",1,0,'p'},
-		{"loop",1,0,'l'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
 		{0, 0, 0, 0}
@@ -42,15 +37,10 @@ void printhelp(void)
 {
 	printf("Curses based file save dialog\n"
 	"Usage: " APPNAME " [OPTION] /path/to/folder/with/images\n"
-	" -p, --pause	Delay before next picture\n"
-	" -l, --loop	Loop this many times ( -1 = forever )\n"
-	" -v, --version		Version\n"
-	" -h, -?, --help		Help\n\n"
+	" -p, --pause	Delay in ms before next picture\n"
+	" -v, --version	Version\n"
+	" -h, -?, --help	Help\n\n"
 	"Report bugs to keithdhedger@gmail.com\n"
-	"\nExample:\n"
-	"To get the reults of the dialog into a bash varable Use:\n"
-	"{ result=$(" APPNAME " -w MyWindow -s /etc -n SaveFileName 2>&1 >&3 3>&-); } 3>&1\n"
-	"echo $result\n"
 	);
 }
 
@@ -59,21 +49,19 @@ int main(int argc, char **argv)
 	CTK_mainAppClass		*mainApp=new CTK_mainAppClass();
 	coloursStruct			cs;
 	CTK_cursesLabelClass	*lab;
-	const char				*label="Simple Framebuffer Image Example, Press Any Key ...";
+	const char				*label="Framebuffer slideshow, Press Any Key ...";
 	int						labellen=strlen(label);
 	struct fbData			*fbinf=mainApp->CTK_getFBData();
-	CTK_cursesUtilsClass	cu;
 	int						c;
 	int						option_index;
 	const char				*folder="./";
-	int						delay=1;
-	int						loop=0;
+	int						delay=4000;
 
 	while(true)
 		{
 			option_index=0;
 
-			c=getopt_long(argc,argv,"v?h:p:d:",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?h:p:",long_options,&option_index);
 				if(c==-1)
 					break;
 
@@ -83,18 +71,19 @@ int main(int argc, char **argv)
 						delay=atoi(optarg);
 						break;
 
-					case 'l':
-						loop=atoi(optarg);
-						break;
-
 					case 'v':
 						printf(APPNAME " %s\n",VERSION);
+						delete mainApp;
+						printf("\n");
 						return 0;
 						break;
 
 					case '?':
 					case 'h':
-						printhelp();
+						printhelp();						
+						SETSHOWCURS;
+						delete mainApp;
+						printf("\n");
 						return 0;
 						break;
 
@@ -105,8 +94,8 @@ int main(int argc, char **argv)
 				}
 		}
 
-	if(argc>1)
-		folder=argv[1];
+	if(optind<argc)
+		folder=argv[optind];
 
 	if(fbinf->usingIM==false)
 		{
@@ -135,19 +124,16 @@ int main(int argc, char **argv)
 
 	CTK_cursesFBImageClass	*img=mainApp->CTK_addNewFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[0].path.c_str());
 	img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-	mainApp->CTK_mainEventLoop(1);
-//	sleep(delay);
+
+	mainApp->CTK_mainEventLoop(-1*delay);
 	for(int j=1;j<files->data.size();j++)
 		{
-			//fprintf(stderr,"%s\n",files->data[j].path.c_str());
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			mainApp->CTK_mainEventLoop(1);
-		//	sleep(delay);
+			mainApp->CTK_mainEventLoop(-1*delay);
 		}
 
 	SETSHOWCURS;
-
 	delete mainApp;
 	printf("\n");
 	return 0;
