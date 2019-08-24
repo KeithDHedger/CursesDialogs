@@ -97,11 +97,11 @@ int main(int argc, char **argv)
 	if(optind<argc)
 		folder=argv[optind];
 
-	if(fbinf->usingIM==false)
-		{
-			fprintf(stderr,"Library not compiled with framebuffer support, can't display image :( ...\n");
-			return(1);
-		}
+//	if(fbinf->usingIM==false)
+//		{
+//			fprintf(stderr,"Library not compiled with framebuffer support, can't display image :( ...\n");
+//			return(1);
+//		}
 
 	cs.windowBackCol=BACK_WHITE;
 	mainApp->CTK_setColours(cs);
