@@ -87,7 +87,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = ctkopenfile$(EXEEXT) ctksavefile$(EXEEXT) \
-	ctkinput$(EXEEXT) ctkquery$(EXEEXT) ctkopenfolder$(EXEEXT)
+	ctkinput$(EXEEXT) ctkquery$(EXEEXT) ctkopenfolder$(EXEEXT) \
+	ctkfbimageviewer$(EXEEXT)
 subdir = CursesDialogs/dialogs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,6 +102,10 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_ctkfbimageviewer_OBJECTS =  \
+	../dialog-src/ctkfbimageviewer.$(OBJEXT)
+ctkfbimageviewer_OBJECTS = $(am_ctkfbimageviewer_OBJECTS)
+ctkfbimageviewer_LDADD = $(LDADD)
 am_ctkinput_OBJECTS = ../dialog-src/ctkinput.$(OBJEXT)
 ctkinput_OBJECTS = $(am_ctkinput_OBJECTS)
 ctkinput_LDADD = $(LDADD)
@@ -145,12 +150,12 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
-	$(ctksavefile_SOURCES)
-DIST_SOURCES = $(ctkinput_SOURCES) $(ctkopenfile_SOURCES) \
-	$(ctkopenfolder_SOURCES) $(ctkquery_SOURCES) \
-	$(ctksavefile_SOURCES)
+SOURCES = $(ctkfbimageviewer_SOURCES) $(ctkinput_SOURCES) \
+	$(ctkopenfile_SOURCES) $(ctkopenfolder_SOURCES) \
+	$(ctkquery_SOURCES) $(ctksavefile_SOURCES)
+DIST_SOURCES = $(ctkfbimageviewer_SOURCES) $(ctkinput_SOURCES) \
+	$(ctkopenfile_SOURCES) $(ctkopenfolder_SOURCES) \
+	$(ctkquery_SOURCES) $(ctksavefile_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -290,6 +295,7 @@ ctkopenfolder_SOURCES = ../dialog-src/ctkopenfolder.cpp
 ctksavefile_SOURCES = ../dialog-src/ctksavefile.cpp
 ctkinput_SOURCES = ../dialog-src/ctkinput.cpp
 ctkquery_SOURCES = ../dialog-src/ctkquery.cpp
+ctkfbimageviewer_SOURCES = ../dialog-src/ctkfbimageviewer.cpp
 all: all-am
 
 .SUFFIXES:
@@ -372,6 +378,13 @@ clean-binPROGRAMS:
 ../dialog-src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ../dialog-src/$(DEPDIR)
 	@: > ../dialog-src/$(DEPDIR)/$(am__dirstamp)
+../dialog-src/ctkfbimageviewer.$(OBJEXT):  \
+	../dialog-src/$(am__dirstamp) \
+	../dialog-src/$(DEPDIR)/$(am__dirstamp)
+
+ctkfbimageviewer$(EXEEXT): $(ctkfbimageviewer_OBJECTS) $(ctkfbimageviewer_DEPENDENCIES) $(EXTRA_ctkfbimageviewer_DEPENDENCIES) 
+	@rm -f ctkfbimageviewer$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ctkfbimageviewer_OBJECTS) $(ctkfbimageviewer_LDADD) $(LIBS)
 ../dialog-src/ctkinput.$(OBJEXT): ../dialog-src/$(am__dirstamp) \
 	../dialog-src/$(DEPDIR)/$(am__dirstamp)
 
@@ -410,6 +423,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkfbimageviewer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkinput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkopenfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../dialog-src/$(DEPDIR)/ctkopenfolder.Po@am__quote@
