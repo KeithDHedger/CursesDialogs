@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	CTK_mainAppClass		*mainApp=new CTK_mainAppClass();
 	coloursStruct			cs;
 	CTK_cursesLabelClass	*lab;
-	const char				*label="Framebuffer slideshow, Press Any Key ...";
+	const char				*label="Framebuffer slideshow, Press any key ( q to quit ) ...";
 	int						labellen=strlen(label);
 	struct fbData			*fbinf=mainApp->CTK_getFBData();
 	int						c;
@@ -97,12 +97,6 @@ int main(int argc, char **argv)
 	if(optind<argc)
 		folder=argv[optind];
 
-//	if(fbinf->usingIM==false)
-//		{
-//			fprintf(stderr,"Library not compiled with framebuffer support, can't display image :( ...\n");
-//			return(1);
-//		}
-
 	cs.windowBackCol=BACK_WHITE;
 	mainApp->CTK_setColours(cs);
 
@@ -114,7 +108,6 @@ int main(int argc, char **argv)
 	files->LFSTK_setFullPath(true);
 	files->LFSTK_setIncludeHidden(true);
 	files->LFSTK_setIgnoreNavLinks(true);
-	//files->LFSTK_setDepth(10,20);//TODO//
 	files->LFSTK_findFiles(folder);
 	files->LFSTK_setSort(false);
 	files->LFSTK_sortByTypeAndName();
@@ -126,11 +119,14 @@ int main(int argc, char **argv)
 	img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
 
 	mainApp->CTK_mainEventLoop(-1*delay);
+	int lastkey;
 	for(int j=1;j<files->data.size();j++)
 		{
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			mainApp->CTK_mainEventLoop(-1*delay);
+			lastkey=mainApp->CTK_mainEventLoop(-1*delay);
+			if(lastkey=='q')
+				break;
 		}
 
 	SETSHOWCURS;

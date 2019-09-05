@@ -29,7 +29,7 @@ enum {DEVSRC=1,DEVDEST};
 enum {BTNRUN=0,BTNPRINT,BTNQUIT,BTNABOUT};
 enum {ONFINQUIT=0,ONFINHALT,ONFINRESTART,ONFINNOWT};
 
-CTK_mainAppClass			*mainApp;
+CTK_mainAppClass			*mainApp=new CTK_mainAppClass();
 std::vector<std::string>	devStrings;
 CTK_cursesChooserClass		*destChooser;
 CTK_cursesTextBoxClass		*commandLine;
@@ -173,12 +173,11 @@ int main(int argc, char **argv)
 {
 	std::string				str;
 	char					*folder=NULL;
-	CTK_cursesListBoxClass	*srcdevlist=new CTK_cursesListBoxClass();
-	CTK_cursesListBoxClass	*destdirlist=new CTK_cursesListBoxClass();
+	CTK_cursesListBoxClass	*srcdevlist=new CTK_cursesListBoxClass(mainApp);
+	CTK_cursesListBoxClass	*destdirlist=new CTK_cursesListBoxClass(mainApp);
 	char					buffer[PATH_MAX];
 	int						maxlen;
 
-	mainApp=new CTK_mainAppClass();
 	mainApp->colours.fancyGadgets=true;
 	mainApp->colours.listBoxType=INBOX;
 	mainApp->colours.labelBoxType=NOBOX;
@@ -190,7 +189,7 @@ int main(int argc, char **argv)
 //src
 	getDiskList("blkid |grep \"ext*\"|grep -i label|awk -F\"UUID\" '{print $1}'");
 	srcdevlist=mainApp->CTK_addNewListBox(3,3,40,10);
-	srcdevlist->CTK_setEnterDeselects(false);
+	srcdevlist->CTK_setSelectDeselects(false);
 	for(int j=0;j<devStrings.size();j++)
 		srcdevlist->CTK_addListItem(devStrings[j].c_str(),(void*)(long)j);
 	srcdevlist->CTK_setSelectCB(devSelectCB,(void*)DEVSRC);
@@ -254,10 +253,9 @@ int main(int argc, char **argv)
 	button->CTK_setSelectCB(buttonSelectCB,(void*)BTNABOUT);
 
 //do what
-	mainApp->CTK_addNewTextBox(3,3+12,mainApp->maxCols-4,1,"",true);
-	commandLine=mainApp->pages[0].textBoxes[0];
+	commandLine=mainApp->CTK_addNewTextBox(3,3+12,mainApp->maxCols-4,1,"",true);
 	devSelectCB(srcdevlist,NULL);
-	mainApp->CTK_setDefaultGadget(LIST,0);
+	mainApp->CTK_setDefaultGadget(srcdevlist);
 	mainApp->CTK_mainEventLoop();
 
 	SETSHOWCURS;

@@ -1,3 +1,7 @@
+0.0.7
+Added quit key to imageviewer.
+Updated for new library version.
+
 0.0.6
 Added time out for imageviewer.
 Added simple framebuffer image viewer, ( Depends on Imagemagick ).
