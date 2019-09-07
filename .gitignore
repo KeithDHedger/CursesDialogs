@@ -14,7 +14,7 @@ CursesDialogs/*/Doxyfile
 CursesDialogs/*/html
 CursesDialogs/*/searchdata.xml
 IGNORE
-localconfig
+localconfig*
 *.*~
 
 

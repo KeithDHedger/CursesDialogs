@@ -153,8 +153,9 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(helpfilesdir)"
-DATA = $(helpfiles_DATA)
+am__installdirs = "$(DESTDIR)$(helpfilesdir)" \
+	"$(DESTDIR)$(musicfilesdir)"
+DATA = $(helpfiles_DATA) $(musicfiles_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -328,7 +329,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = CursesDialogs/dialogs CursesDialogs/frontends
 helpfilesdir = $(pkgdatadir)/help
-helpfiles_DATA = CursesDialogs/resources/help/*
+helpfiles_DATA = CursesDialogs/resources/help/* 
+musicfilesdir = $(pkgdatadir)/MusicPlayer
+musicfiles_DATA = CursesDialogs/resources/MusicPlayer/* 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -402,6 +405,27 @@ uninstall-helpfilesDATA:
 	@list='$(helpfiles_DATA)'; test -n "$(helpfilesdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(helpfilesdir)'; $(am__uninstall_files_from_dir)
+install-musicfilesDATA: $(musicfiles_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(musicfiles_DATA)'; test -n "$(musicfilesdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(musicfilesdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(musicfilesdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(musicfilesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(musicfilesdir)" || exit $$?; \
+	done
+
+uninstall-musicfilesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(musicfiles_DATA)'; test -n "$(musicfilesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(musicfilesdir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -702,7 +726,7 @@ check: check-recursive
 all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(helpfilesdir)"; do \
+	for dir in "$(DESTDIR)$(helpfilesdir)" "$(DESTDIR)$(musicfilesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -756,7 +780,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-helpfilesDATA
+install-data-am: install-helpfilesDATA install-musicfilesDATA
 
 install-dvi: install-dvi-recursive
 
@@ -802,7 +826,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-helpfilesDATA
+uninstall-am: uninstall-helpfilesDATA uninstall-musicfilesDATA
 
 .MAKE: $(am__recursive_targets) all install-am install-strip
 
@@ -816,12 +840,12 @@ uninstall-am: uninstall-helpfilesDATA
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-helpfilesDATA \
 	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
+	install-man install-musicfilesDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
 	pdf-am ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-helpfilesDATA
+	uninstall-helpfilesDATA uninstall-musicfilesDATA
 
 .PRECIOUS: Makefile
 

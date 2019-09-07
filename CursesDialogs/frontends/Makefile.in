@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = ctkdump$(EXEEXT)
+bin_PROGRAMS = ctkdump$(EXEEXT) ctkmusicplayer$(EXEEXT)
 subdir = CursesDialogs/frontends
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -103,6 +103,9 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_ctkdump_OBJECTS = ../frontends-src/ctkdump.$(OBJEXT)
 ctkdump_OBJECTS = $(am_ctkdump_OBJECTS)
 ctkdump_LDADD = $(LDADD)
+am_ctkmusicplayer_OBJECTS = ../frontends-src/musicplayer.$(OBJEXT)
+ctkmusicplayer_OBJECTS = $(am_ctkmusicplayer_OBJECTS)
+ctkmusicplayer_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -132,8 +135,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(ctkdump_SOURCES)
-DIST_SOURCES = $(ctkdump_SOURCES)
+SOURCES = $(ctkdump_SOURCES) $(ctkmusicplayer_SOURCES)
+DIST_SOURCES = $(ctkdump_SOURCES) $(ctkmusicplayer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -269,6 +272,7 @@ AM_CPPFLAGS = -I$(top_srcdir) \
 			$(CURSESTOOLKIT_CFLAGS)
 
 ctkdump_SOURCES = ../frontends-src/ctkdump.cpp
+ctkmusicplayer_SOURCES = ../frontends-src/musicplayer.cpp
 all: all-am
 
 .SUFFIXES:
@@ -357,6 +361,13 @@ clean-binPROGRAMS:
 ctkdump$(EXEEXT): $(ctkdump_OBJECTS) $(ctkdump_DEPENDENCIES) $(EXTRA_ctkdump_DEPENDENCIES) 
 	@rm -f ctkdump$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(ctkdump_OBJECTS) $(ctkdump_LDADD) $(LIBS)
+../frontends-src/musicplayer.$(OBJEXT):  \
+	../frontends-src/$(am__dirstamp) \
+	../frontends-src/$(DEPDIR)/$(am__dirstamp)
+
+ctkmusicplayer$(EXEEXT): $(ctkmusicplayer_OBJECTS) $(ctkmusicplayer_DEPENDENCIES) $(EXTRA_ctkmusicplayer_DEPENDENCIES) 
+	@rm -f ctkmusicplayer$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ctkmusicplayer_OBJECTS) $(ctkmusicplayer_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -366,6 +377,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/ctkdump.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/musicplayer.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
