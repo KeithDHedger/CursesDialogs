@@ -1,4 +1,5 @@
 0.0.7
+Added frame buffer music player to frontends.
 Added quit key to imageviewer.
 Updated for new library version.
 

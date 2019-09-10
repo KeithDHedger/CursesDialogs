@@ -4360,7 +4360,7 @@ fi
 
 CFLAGS=-Wall
 
-CURSESTOOLKIT_MODULES="cursestoolkit >= 1.1.0"
+CURSESTOOLKIT_MODULES="cursestoolkit >= 1.1.1"
 
 
 

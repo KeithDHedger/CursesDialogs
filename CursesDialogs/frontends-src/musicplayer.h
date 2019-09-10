@@ -22,11 +22,14 @@
 #ifndef _MUSICPLAYER_
 #define _MUSICPLAYER_
 
+#include <libgen.h>
 #include <cursesGlobals.h>
+#include <stdarg.h>
 #include <getopt.h>
 #include "config.h"
 
 #define APPNAME "ctkmusicplayer"
+#define CONTROLCNT 8
 
 struct option long_options[]=
 	{
@@ -35,6 +38,6 @@ struct option long_options[]=
 		{0, 0, 0, 0}
 	};
 
-enum {FRONT=1,BACKWARD,START,STOP,PAUSE,FOWARD,BACK};
+enum {START=1,PREVIOUS,PLAY,STOP,PAUSE,NEXT,END,QUIT};
 
 #endif
