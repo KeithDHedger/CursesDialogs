@@ -40,4 +40,6 @@ struct option long_options[]=
 
 enum {START=1,PREVIOUS,PLAY,STOP,PAUSE,NEXT,END,QUIT};
 
+void getMeta(void);
+
 #endif

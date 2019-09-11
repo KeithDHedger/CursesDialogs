@@ -1,4 +1,6 @@
 0.0.7
+Music player UI tweaks.
+Music player fixes.
 Added frame buffer music player to frontends.
 Added quit key to imageviewer.
 Updated for new library version.

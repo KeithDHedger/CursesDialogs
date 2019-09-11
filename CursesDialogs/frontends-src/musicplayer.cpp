@@ -38,19 +38,22 @@ int							dialogWidth;
 int							chooserHite;
 int							songsHite;
 int							controlsSY;
-int							buttonsSY;
 int							artSY;
 int							artHite;
 std::vector<char*>			songs;
 bool						playing=false;
 bool						paused=false;
-bool						doQuit=false
-;
+bool						doQuit=false;
+char						*oldfile=NULL;
+bool						updated=false;
+char						*outName=NULL;
+char						*fifoName=NULL;
+char						commandString[PATH_MAX];
 
 void printhelp(void)
 {
 	printf("Curses based file save dialog\n"
-	"Usage: " APPNAME " [OPTION] /path/to/folder/with/playlistd\n"
+	"Usage: " APPNAME " [OPTION] /path/to/folder/with/playlists\n"
 	" -v, --version	Version\n"
 	" -h, -?, --help	Help\n\n"
 	"Report bugs to keithdhedger@gmail.com\n"
@@ -116,8 +119,13 @@ char* oneLiner(const char* fmt,...)
 	return(NULL);
 }
 
-char	*oldfile=NULL;
-bool	updated=false;
+void sendToPipe(const char *command)
+{
+	char	buffer[PATH_MAX];
+
+	sprintf(buffer,"echo -e \"%s\" >\"%s\" &",command,fifoName);
+	system(buffer);
+}
 
 void getMeta(void)
 {
@@ -132,8 +140,9 @@ void getMeta(void)
 	if((playing==false) || (paused==true))
 		return;
 
-	system("echo -e \"get_meta_album\nget_meta_title\nget_meta_artist\nget_property path\" >/tmp/mplayerfifo");
-	filename=oneLiner("tail -n4 /tmp/mplayerout |sed -n '4p'|awk -F= '{print $2}'");
+	sprintf(commandString,"get_meta_album\\nget_meta_title\\nget_meta_artist\\nget_property path");
+	sendToPipe(commandString);
+	filename=oneLiner("tail -n4 '%s' |sed -n '4p'|awk -F= '{print $2}'",outName);
 
 	if(oldfile!=NULL)
 		{
@@ -141,9 +150,9 @@ void getMeta(void)
 				{
 					if(updated==false)
 						{
-							album=oneLiner("tail -n4 /tmp/mplayerout |sed -n '1p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'");
-							title=oneLiner("tail -n4 /tmp/mplayerout |sed -n '2p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'");
-							artist=oneLiner("tail -n4 /tmp/mplayerout |sed -n '3p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'");
+							album=oneLiner("tail -n4 '%s' |sed -n '1p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
+							title=oneLiner("tail -n4 '%s' |sed -n '2p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
+							artist=oneLiner("tail -n4 '%s' |sed -n '3p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
 							asprintf(&all,"Album:  %s\nArtist: %s\nSong:   %s\n",album,artist,title);
 
 							nowPlaying->CTK_updateText(all,false,false);
@@ -152,18 +161,19 @@ void getMeta(void)
 							free(album);
 							free(artist);
 							free(all);
-							system(":>/tmp/mplayerout");
+							sprintf(commandString,":>'%s'",outName);
+							system(commandString);
 
-							asprintf(&command,"%s",filename);
-							asprintf(&jpeg,"%s/folder.jpg",dirname(command));
+							sprintf(commandString,"%s",filename);
+							asprintf(&jpeg,"%s/folder.jpg",dirname(commandString));
 							albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,jpeg,false);
-							free(command);
 							free(jpeg);
 						}
 
 					free(filename);
-					system(":>/tmp/mplayerout");
-						return;
+					sprintf(commandString,":>'%s'",outName);
+					system(commandString);
+					return;
 				}
 		}
 	oldfile=strdup(filename);
@@ -178,19 +188,19 @@ void selectSongCB(void *inst,void *userdata)
 	if(sl->listItems.size()==0)
 		return;
 
-				asprintf(&command,"echo -e \"p\npausing_keep_force loadlist '%s'\" >/tmp/mplayerfifo",playLists->filePath.c_str());
-				system(command);
-				free(command);
-				if((long)sl->listItems[sl->listItemNumber]->userData!=0)
-					{
-						asprintf(&command,"echo -e \"pausing_keep_force pt_step %i\np\" >/tmp/mplayerfifo",(long)sl->listItems[sl->listItemNumber]->userData);
-						system(command);
-						free(command);
-					}
-				else
-					system("echo \"p\" >/tmp/mplayerfifo");
-				playing=true;
-				paused=false;
+	sprintf(commandString,"p\\npausing_keep_force loadlist \\\"%s\\\"",playLists->filePath.c_str());
+	sendToPipe(commandString);
+
+	if((long)sl->listItems[sl->listItemNumber]->userData!=0)
+		{
+			sprintf(commandString,"pausing_keep_force pt_step %i\\np",(long)sl->listItems[sl->listItemNumber]->userData);
+			sendToPipe(commandString);
+		}
+	else
+		sendToPipe("p");
+
+	playing=true;
+	paused=false;
 }
 
 void controlsCB(void *inst,void *userdata)
@@ -202,21 +212,25 @@ void controlsCB(void *inst,void *userdata)
 	switch(ud)
 		{
 			case START:
-				asprintf(&command,"echo -e \"loadlist '%s'\" >/tmp/mplayerfifo",playLists->filePath.c_str());
-				system(command);
-				free(command);
+				if(playing==false)
+					return;
+				sprintf(commandString,"loadlist \\\"%s\\\"",playLists->filePath.c_str());
+				sendToPipe(commandString);
 				playing=true;
 				paused=false;
 				break;
 
 			case PREVIOUS:
-				system("echo -e \"pt_step -1\" >/tmp/mplayerfifo");
+				if(playing==false)
+					return;
+				sendToPipe("pt_step -1");
+				paused=false;
 				break;
 
 			case PLAY:
 				if(playing==true)
 					{
-						system("echo 'p' >/tmp/mplayerfifo");
+						sendToPipe("p");
 						paused=!paused;
 					}
 				if(playing==true)
@@ -226,7 +240,14 @@ void controlsCB(void *inst,void *userdata)
 			case STOP:
 				if(playing==false)
 					return;
-				system("echo 'q' >/tmp/mplayerfifo");
+				for(int j=0;j<songs.size();j++)
+					free(songs[j]);
+				songs.clear();
+				songList->CTK_clearList();
+				sendToPipe("stop");
+				albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,"",false);
+				nowPlaying->CTK_updateText("");
+				mainApp->CTK_clearScreen();
 				playing=false;
 				paused=false;
 				break;
@@ -234,23 +255,26 @@ void controlsCB(void *inst,void *userdata)
 			case PAUSE:
 				if(playing==false)
 					return;
-				system("echo 'p' >/tmp/mplayerfifo");
+				sendToPipe("p");
 				paused=!paused;
 				break;
 
 			case END:
-				asprintf(&command,"echo -e \"p\npausing_keep_force loadlist '%s'\" >/tmp/mplayerfifo",playLists->filePath.c_str());
-				system(command);
-				free(command);
-				asprintf(&command,"echo -e \"pausing_keep_force pt_step %i\np\" >/tmp/mplayerfifo",songs.size()-1);
-				system(command);
-				free(command);
+				if(playing==false)
+					return;
+				sprintf(commandString,"p\\npausing_keep_force loadlist \\\"%s\\\"",playLists->filePath.c_str());
+				sendToPipe(commandString);
+				sprintf(commandString,"pausing_keep_force pt_step %i\\np",songs.size()-1);
+				sendToPipe(commandString);
 				playing=true;
 				paused=false;
 				break;
 
 			case NEXT:
-				system("echo -e \"pt_step 1\" >/tmp/mplayerfifo");
+				if(playing==false)
+					return;
+				sendToPipe("pt_step 1");
+				paused=false;
 				break;
 
 			case QUIT:
@@ -299,9 +323,9 @@ void playListsCB(void *inst,void *userdata)
 			songList->CTK_addListItem(++ptr,(void*)j);
 		}
 
-	sprintf(buffer,"echo -e \"loadlist '%s'\" >/tmp/mplayerfifo",ch->filePath.c_str());
+	sprintf(commandString,"loadlist '%s'",ch->filePath.c_str());
+	sendToPipe(commandString);
 	playing=true;
-	system(buffer);
 }
 
 int main(int argc, char **argv)
@@ -316,18 +340,20 @@ int main(int argc, char **argv)
 	chooserWidth=((mainApp->maxCols/8)*5)-2;
 	chooserHite=mainApp->maxRows-16;
 	controlsSY=mainApp->maxRows-5;
-	buttonsSY=mainApp->maxRows-1;
 	songsWidth=mainApp->maxCols-chooserWidth-7;
 	songsHite=(chooserHite+4)/2;
 	artSY=songsHite+4;
 	artHite=songsHite;
 	asprintf(&resources,"%s/MusicPlayer",DATADIR);
-	fprintf(stderr,"resources=%s\n",resources);
-	system("rm /tmp/mplayerfifo");
-	system("mkfifo /tmp/mplayerfifo");
+//	fprintf(stderr,"resources=%s\n",resources);
+	asprintf(&fifoName,"/tmp/mplayerfifo%i",getpid());
+	asprintf(&outName,"/tmp/mplayerout%i",getpid());
+	sprintf(commandString,"mkfifo '%s'",fifoName);
+	system(commandString);
 
 //start mplayer
-	system("mplayer -quiet -slave -input file=/tmp/mplayerfifo -idle >/tmp/mplayerout 2>/dev/null &");
+	sprintf(commandString,"mplayer -quiet -slave -input file='%s' -idle >'%s' 2>/dev/null &",fifoName,outName);
+	system(commandString);
 
 	while(true)
 		{
@@ -386,9 +412,7 @@ int main(int argc, char **argv)
 
 	nowPlaying=mainApp->CTK_addNewTextBox(3,chooserHite+4,chooserWidth,3,"");
 	nowPlaying->CTK_setSelectable(false);
-//	button=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,1,18,0),buttonsSY,12,1,"   Quit   ");
-//	button->CTK_setSelectCB(buttonsCB,NULL);
-//
+
 	sprintf(imagepath,"%s/MusicPlayer/start.png",DATADIR);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,0),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)START);
@@ -424,12 +448,15 @@ int main(int argc, char **argv)
 			getMeta();
 		}
 	while (doQuit==false);
-	system("echo 'q' >/tmp/mplayerfifo &");
 
+	sendToPipe("q");
 	SETSHOWCURS;
 	delete mainApp;
 	free(resources);
-	system("rm /tmp/mplayerfifo");
+	sprintf(commandString,"rm '%s' '%s'",fifoName,outName);
+	system(commandString);
+	free(fifoName);
+	free(outName);
 	for(int j=0;j<songs.size();j++)
 		free(songs[j]);
 
