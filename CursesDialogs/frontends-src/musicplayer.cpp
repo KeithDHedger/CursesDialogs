@@ -148,7 +148,8 @@ void getMeta(void)
 		{
 			if(strcmp(filename,oldfile)==0)
 				{
-					if(updated==false)
+//					if(updated==false)
+while(updated==false)
 						{
 							album=oneLiner("tail -n4 '%s' |sed -n '1p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
 							title=oneLiner("tail -n4 '%s' |sed -n '2p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
@@ -167,8 +168,10 @@ void getMeta(void)
 							sprintf(commandString,"%s",filename);
 							asprintf(&jpeg,"%s/folder.jpg",dirname(commandString));
 							albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,jpeg,false);
+							mainApp->CTK_updateScreen(mainApp,NULL);
 							free(jpeg);
 						}
+
 
 					free(filename);
 					sprintf(commandString,":>'%s'",outName);
@@ -442,9 +445,11 @@ int main(int argc, char **argv)
 	albumArt->CTK_setSelectable(false);
 
 	mainApp->CTK_clearScreen();
+	mainApp->CTK_updateScreen(mainApp,NULL);
+
 	do
 		{
-			mainApp->CTK_mainEventLoop(-500,false);
+			mainApp->CTK_mainEventLoop(-250,false);
 			getMeta();
 		}
 	while (doQuit==false);
@@ -462,3 +467,4 @@ int main(int argc, char **argv)
 
 	return(0);
 }
+
