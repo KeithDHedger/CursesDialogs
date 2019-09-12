@@ -168,7 +168,7 @@ while(updated==false)
 							sprintf(commandString,"%s",filename);
 							asprintf(&jpeg,"%s/folder.jpg",dirname(commandString));
 							albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,jpeg,false);
-							mainApp->CTK_updateScreen(mainApp,NULL);
+							//mainApp->CTK_updateScreen(mainApp,NULL);
 							free(jpeg);
 						}
 
@@ -444,12 +444,12 @@ int main(int argc, char **argv)
 	albumArt=mainApp->CTK_addNewFBImage(chooserWidth+6,artSY,artHite,artHite,NULL,false);
 	albumArt->CTK_setSelectable(false);
 
-	mainApp->CTK_clearScreen();
-	mainApp->CTK_updateScreen(mainApp,NULL);
+	//mainApp->CTK_clearScreen();
+	//mainApp->CTK_updateScreen(mainApp,NULL);
 
 	do
 		{
-			mainApp->CTK_mainEventLoop(-250,false);
+			mainApp->CTK_mainEventLoop(-50,true);
 			getMeta();
 		}
 	while (doQuit==false);
