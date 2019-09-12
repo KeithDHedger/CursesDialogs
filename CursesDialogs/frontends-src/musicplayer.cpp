@@ -449,7 +449,7 @@ int main(int argc, char **argv)
 
 	do
 		{
-			mainApp->CTK_mainEventLoop(-50,true);
+			mainApp->CTK_mainEventLoop(-500,true);
 			getMeta();
 		}
 	while (doQuit==false);
