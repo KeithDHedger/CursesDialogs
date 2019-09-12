@@ -444,8 +444,8 @@ int main(int argc, char **argv)
 	albumArt=mainApp->CTK_addNewFBImage(chooserWidth+6,artSY,artHite,artHite,NULL,false);
 	albumArt->CTK_setSelectable(false);
 
-	//mainApp->CTK_clearScreen();
-	//mainApp->CTK_updateScreen(mainApp,NULL);
+	mainApp->CTK_clearScreen();
+	mainApp->CTK_updateScreen(mainApp,NULL);
 
 	do
 		{
