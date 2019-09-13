@@ -250,7 +250,9 @@ void controlsCB(void *inst,void *userdata)
 				sendToPipe("stop");
 				albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,"",false);
 				nowPlaying->CTK_updateText("");
+				mainApp->CTK_setDefaultGadget(playLists->lb);
 				mainApp->CTK_clearScreen();
+				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				playing=false;
 				paused=false;
 				break;
