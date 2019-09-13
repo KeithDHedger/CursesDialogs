@@ -140,20 +140,35 @@ void getMeta(void)
 	if((playing==false) || (paused==true))
 		return;
 
-	sprintf(commandString,"get_meta_album\\nget_meta_title\\nget_meta_artist\\nget_property path");
+	sprintf(commandString,"get_property path\\nget_meta_album\\nget_meta_title\\nget_meta_artist");
 	sendToPipe(commandString);
-	filename=oneLiner("tail -n4 '%s' |sed -n '4p'|awk -F= '{print $2}'",outName);
+	filename=oneLiner("tail -n4 '%s' |sed -n '1p'|awk -F= '{print $2}'",outName);
+
+	if(strcmp(filename,"(null)")==0)
+		{
+			for(int j=0;j<songs.size();j++)
+				free(songs[j]);
+			songs.clear();
+			songList->CTK_clearList();
+			albumArt->CTK_newFBImage(chooserWidth+6,artSY,artHite*2,artHite,"",false);
+			nowPlaying->CTK_updateText("");
+			mainApp->CTK_setDefaultGadget(playLists->lb);
+			mainApp->CTK_clearScreen();
+			mainApp->CTK_updateScreen(mainApp,(void*)1);
+			playing=false;
+			paused=false;
+			return;
+		}
 
 	if(oldfile!=NULL)
 		{
 			if(strcmp(filename,oldfile)==0)
 				{
-//					if(updated==false)
-while(updated==false)
+					while(updated==false)
 						{
-							album=oneLiner("tail -n4 '%s' |sed -n '1p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
-							title=oneLiner("tail -n4 '%s' |sed -n '2p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
-							artist=oneLiner("tail -n4 '%s' |sed -n '3p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
+							album=oneLiner("tail -n4 '%s' |sed -n '2p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
+							title=oneLiner("tail -n4 '%s' |sed -n '3p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
+							artist=oneLiner("tail -n4 '%s' |sed -n '4p'|awk -F= '{print $2}'|sed -n 's/^.\\(.*\\).$/\\1/p'",outName);
 							asprintf(&all,"Album:  %s\nArtist: %s\nSong:   %s\n",album,artist,title);
 
 							nowPlaying->CTK_updateText(all,false,false);
@@ -171,7 +186,6 @@ while(updated==false)
 							mainApp->CTK_updateScreen(mainApp,NULL);
 							free(jpeg);
 						}
-
 
 					free(filename);
 					sprintf(commandString,":>'%s'",outName);
@@ -451,7 +465,7 @@ int main(int argc, char **argv)
 
 	do
 		{
-			mainApp->CTK_mainEventLoop(-500,false);
+			mainApp->CTK_mainEventLoop(-250,false);
 			getMeta();
 		}
 	while (doQuit==false);
