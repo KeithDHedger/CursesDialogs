@@ -86,7 +86,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = ctkdump$(EXEEXT) ctkmusicplayer$(EXEEXT)
+bin_PROGRAMS = ctkdump$(EXEEXT) ctkmusicplayer$(EXEEXT) \
+	ctkcastreceiver$(EXEEXT)
 subdir = CursesDialogs/frontends
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -100,6 +101,9 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
+am_ctkcastreceiver_OBJECTS = ../frontends-src/castreceiver.$(OBJEXT)
+ctkcastreceiver_OBJECTS = $(am_ctkcastreceiver_OBJECTS)
+ctkcastreceiver_LDADD = $(LDADD)
 am_ctkdump_OBJECTS = ../frontends-src/ctkdump.$(OBJEXT)
 ctkdump_OBJECTS = $(am_ctkdump_OBJECTS)
 ctkdump_LDADD = $(LDADD)
@@ -135,8 +139,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(ctkdump_SOURCES) $(ctkmusicplayer_SOURCES)
-DIST_SOURCES = $(ctkdump_SOURCES) $(ctkmusicplayer_SOURCES)
+SOURCES = $(ctkcastreceiver_SOURCES) $(ctkdump_SOURCES) \
+	$(ctkmusicplayer_SOURCES)
+DIST_SOURCES = $(ctkcastreceiver_SOURCES) $(ctkdump_SOURCES) \
+	$(ctkmusicplayer_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -273,6 +279,7 @@ AM_CPPFLAGS = -I$(top_srcdir) \
 
 ctkdump_SOURCES = ../frontends-src/ctkdump.cpp
 ctkmusicplayer_SOURCES = ../frontends-src/musicplayer.cpp
+ctkcastreceiver_SOURCES = ../frontends-src/castreceiver.cpp
 all: all-am
 
 .SUFFIXES:
@@ -355,6 +362,13 @@ clean-binPROGRAMS:
 ../frontends-src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ../frontends-src/$(DEPDIR)
 	@: > ../frontends-src/$(DEPDIR)/$(am__dirstamp)
+../frontends-src/castreceiver.$(OBJEXT):  \
+	../frontends-src/$(am__dirstamp) \
+	../frontends-src/$(DEPDIR)/$(am__dirstamp)
+
+ctkcastreceiver$(EXEEXT): $(ctkcastreceiver_OBJECTS) $(ctkcastreceiver_DEPENDENCIES) $(EXTRA_ctkcastreceiver_DEPENDENCIES) 
+	@rm -f ctkcastreceiver$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(ctkcastreceiver_OBJECTS) $(ctkcastreceiver_LDADD) $(LIBS)
 ../frontends-src/ctkdump.$(OBJEXT): ../frontends-src/$(am__dirstamp) \
 	../frontends-src/$(DEPDIR)/$(am__dirstamp)
 
@@ -376,6 +390,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/castreceiver.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/ctkdump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../frontends-src/$(DEPDIR)/musicplayer.Po@am__quote@
 

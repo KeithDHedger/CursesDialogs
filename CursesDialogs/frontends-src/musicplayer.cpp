@@ -319,7 +319,6 @@ void playListsCB(void *inst,void *userdata)
 	songs.clear();
 	songList->CTK_clearList();
 
-	//fprintf(stderr,"Playlist '%s' chosen. file=%s type files=%i\n",ch->filePath.c_str(),ch->fileName.c_str(),ch->files->data[ch->lb->listItemNumber].fileType);
 	fd=fopen(ch->filePath.c_str(),"r");
 	if(fd!=NULL)
 		{
@@ -411,7 +410,6 @@ int main(int argc, char **argv)
 		folder=argv[optind];
 
 	mainApp->colours.fancyGadgets=true;
-	//mainApp->colours.listBoxType=NOBOX;
 	mainApp->colours.boxType=NOBOX;
 	mainApp->colours.textBoxType=INBOX;
 	mainApp->colours.windowBackCol=BACK_WHITE;
