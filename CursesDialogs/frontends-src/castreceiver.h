@@ -28,6 +28,9 @@
 #include "config.h"
 
 #define APPNAME "ctkcastreceiver"
+#define CONTROLCNT 5
+
+enum {NOSELECT=0,SELECTDLFOLDER,WAITFORCAST,PLAYURL,DLURL,QUIT};
 
 struct option long_options[]=
 	{
