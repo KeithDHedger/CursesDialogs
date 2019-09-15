@@ -23,15 +23,13 @@
 CTK_mainAppClass			*mainApp=new CTK_mainAppClass();
 CTK_cursesListBoxClass		*urlList;
 CTK_cursesLabelClass		*infoLabel;
-CTK_cursesLabelClass		*currentDLFolder;
-CTK_cursesLabelClass		*currentURL;
 CTK_cursesButtonClass		*selectDLFolder;
 CTK_cursesButtonClass		*waitForCast;
 CTK_cursesButtonClass		*showURL;
 CTK_cursesButtonClass		*downloadURL;
 CTK_cursesButtonClass		*quit;
 
-const char					*downloadFolder="~/Downloads";
+char						*downloadFolder=NULL;
 const char					*recentName=".config/ctkcastreceiver.recent";
 
 int							midWay;
@@ -41,26 +39,18 @@ int							urlListHite;
 int							urlListWidth;
 int							dialogSX=2;
 int							dialogSY=2;
-//int							chooserWidth;
-//int							songsWidth;
-//char						*resources;
-//int							chooserHite;
-//int							controlsSY;
-//int							artSY;
-//int							artHite;
-//std::vector<char*>			songs;
-//bool						playing=false;
-//bool						paused=false;
-//bool						doQuit=false;
-//char						*oldfile=NULL;
-//bool						updated=false;
+const char					*playerCommand="omxplayer --key-config ~/.config/omxkey.config ";
+//const char					*playerCommand="omxplayer  &>/dev/null";
+int							castTimout=30;
+
 char						commandString[PATH_MAX];
 
 
 void printhelp(void)
 {
 	printf("Curses based file save dialog\n"
-	"Usage: " APPNAME " [OPTION] /path/to/folder/with/playlists\n"
+	"Usage: " APPNAME " [OPTION] [/path/to/folder/for/download]\n"
+	" -p, --player	Player command\n"
 	" -v, --version	Version\n"
 	" -h, -?, --help	Help\n\n"
 	"Report bugs to keithdhedger@gmail.com\n"
@@ -149,6 +139,26 @@ void getRecents(void)//TODO//add to library
 		}
 }
 
+void doQuit(void)
+{
+	FILE	*fp;
+
+	mainApp->runEventLoop=false;
+	MOVETO(1,mainApp->maxRows);
+	SETSHOWCURS;
+
+	sprintf(commandString,"%s/%s",getenv("HOME"),recentName);
+	fp=fopen(commandString,"w+");
+	if(fp!=NULL)
+		{
+			for(int j=0;j<urlList->listItems.size();j++)
+				fprintf(fp,"%s\n",urlList->listItems[j]->label.c_str());
+			fclose(fp);
+		}
+	delete mainApp;
+	exit(0);
+}
+
 void selectURLCB(void *inst,void *userdata)
 {
 	std::string				label;
@@ -169,16 +179,63 @@ void buttonsCB(void *inst,void *userdata)
 {
 	CTK_cursesButtonClass	*bc=static_cast<CTK_cursesButtonClass*>(inst);
 	long					ud=(long)userdata;
+	char					*recurl=NULL;
+	std::string				label;
 
-	fprintf(stderr,"buutonno=%i\n",ud);
 	switch(ud)
 		{
+			case SELECTDLFOLDER:
+				mainApp->utils->CTK_selectFolder(mainApp,"Select download folder",downloadFolder);
+				if(mainApp->utils->isValidFile==true)
+					{
+						free(downloadFolder);
+						asprintf(&downloadFolder,"%s",mainApp->utils->stringResult.c_str());
+						label="Download Folder: ";
+						label+=downloadFolder;
+						label+="\nCurrent URL    : ";
+						label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
+						infoLabel->CTK_updateText(label.c_str());
+						mainApp->CTK_updateScreen(mainApp,(void*)1);
+					}
+
+				break;
+
+			case WAITFORCAST:
+				recurl=oneLiner(true,"timeout -k %is %is castreceiver -ue",castTimout,castTimout);
+				if((recurl!=NULL) && (strlen(recurl)>1))
+					{
+						urlList->CTK_addListItem(recurl);
+						urlList->listStart=urlList->listItems.size()-urlListHite;
+						if(urlList->listStart<0)
+							urlList->listStart=0;
+						urlList->listItemNumber=urlList->listItems.size()-1;
+
+						label="Download Folder: ";
+						label+=downloadFolder;
+						label+="\nCurrent URL    : ";
+						label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
+						infoLabel->CTK_updateText(label.c_str());
+						mainApp->CTK_setDefaultGadget(urlList);
+						free(recurl);
+					}
+				else
+					{
+						if(recurl!=NULL)
+							free(recurl);
+					}
+				break;
+
+			case PLAYURL:
+				sprintf(commandString,"%s '%s' &>/dev/null &",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				system(commandString);
+				break;
+
+			case DLURL:
+				oneLiner(false,"(cd '%s';wget -c '%s' & ) &>/dev/null",downloadFolder,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				break;
+
 			case QUIT:
-				mainApp->runEventLoop=false;
-				MOVETO(1,mainApp->maxRows);
-				SETSHOWCURS;
-				delete mainApp;
-				exit(0);
+				doQuit();
 				break;
 		}
 }
@@ -194,13 +251,6 @@ int main(int argc, char **argv)
 	midWay=mainApp->maxCols/2;
 	dialogWidth=mainApp->maxCols-2;
 	dialogHite=mainApp->maxRows-4;
-//	chooserWidth=((mainApp->maxCols/8)*5)-2;
-//	chooserHite=mainApp->maxRows-16;
-//	controlsSY=mainApp->maxRows-5;
-//	songsWidth=mainApp->maxCols-chooserWidth-7;
-//	songsHite=(chooserHite+4)/2;
-//	artSY=songsHite+4;
-//	artHite=songsHite;
 
 	urlListWidth=dialogWidth;
 	urlListHite=dialogHite/2;
@@ -209,12 +259,16 @@ int main(int argc, char **argv)
 		{
 			option_index=0;
 
-			c=getopt_long(argc,argv,"v?h",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?h:p:",long_options,&option_index);
 				if(c==-1)
 					break;
 
 			switch(c)
 				{
+					case 'p':
+						playerCommand=optarg;
+						break;
+
 					case 'v':
 						printf(APPNAME " %s\n",VERSION);
 						delete mainApp;
@@ -239,7 +293,9 @@ int main(int argc, char **argv)
 		}
 
 	if(optind<argc)
-		downloadFolder=argv[optind];
+		downloadFolder=strdup(argv[optind]);
+	else
+		asprintf(&downloadFolder,"%s/Downloads",getenv("HOME"));
 
 	oneLiner(false,"mkdir -p '%s' &>/dev/null",downloadFolder);
 	oneLiner(false,"touch '%s' &>/dev/null",recentName);
@@ -252,20 +308,18 @@ int main(int argc, char **argv)
 	urlList->CTK_setSelectCB(selectURLCB,NULL);
 	urlList->CTK_setSelectDeselects(false);
 	getRecents();
-/*
-CTK_cursesLabelClass		*currentDLFolder;
-CTK_cursesLabelClass		*currentURL;
-CTK_cursesButtonClass		*selectDLFolder;
-CTK_cursesButtonClass		*waitForCast;
-CTK_cursesButtonClass		*showURL;
-CTK_cursesButtonClass		*downloadURL;
-CTK_cursesButtonClass		*quit;
 
-*/
+	urlList->listStart=urlList->listItems.size()-urlListHite;
+	if(urlList->listStart<0)
+		urlList->listStart=0;
+	urlList->listItemNumber=urlList->listItems.size()-1;
 
 	label="Download Folder: ";
 	label+=downloadFolder;
-	label+="\nCurrent URL    :";
+	label+="\nCurrent URL    : ";
+	if(urlList->listItems.size()>0)
+		label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
+
 	infoLabel=mainApp->CTK_addNewLabel(2,dialogSY+urlListHite+2,urlListWidth,2,label.c_str());
 	
 	selectDLFolder=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(2,urlListWidth,CONTROLCNT,16,0),dialogSY+urlListHite+2+2+2,16,1,"  DL Folder  ");
@@ -284,9 +338,7 @@ CTK_cursesButtonClass		*quit;
 	mainApp->CTK_updateScreen(mainApp,NULL);
 	while(mainApp->CTK_mainEventLoop(-500,false)!='q');
 
-	MOVETO(1,mainApp->maxRows);
-	SETSHOWCURS;
-	delete mainApp;
+	doQuit();
 
 	return(0);
 }

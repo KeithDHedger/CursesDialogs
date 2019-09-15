@@ -34,6 +34,7 @@ enum {NOSELECT=0,SELECTDLFOLDER,WAITFORCAST,PLAYURL,DLURL,QUIT};
 
 struct option long_options[]=
 	{
+		{"player",1,0,'p'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
 		{0, 0, 0, 0}
