@@ -226,7 +226,7 @@ void buttonsCB(void *inst,void *userdata)
 				break;
 
 			case PLAYURL:
-				sprintf(commandString,"%s '%s' &>/dev/null &",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				sprintf(commandString,"%s '%s'",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
 				system(commandString);
 				break;
 
