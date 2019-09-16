@@ -233,6 +233,7 @@ void buttonsCB(void *inst,void *userdata)
 					system(commandString);
 				mainApp->CTK_setTermKeyRun(true);
 				mainApp->CTK_setDefaultGadget(urlList);
+				mainApp->CTK_clearScreen();
 				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
 
