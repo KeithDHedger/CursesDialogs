@@ -1,4 +1,5 @@
 0.0.7
+Fixed omxplayer missing input
 Done CastReceiver frontend.
 Started CastReceiver frontend.
 Music player now clears songlist etc at end of playlist.

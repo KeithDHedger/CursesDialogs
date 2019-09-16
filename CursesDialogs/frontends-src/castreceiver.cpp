@@ -226,12 +226,26 @@ void buttonsCB(void *inst,void *userdata)
 				break;
 
 			case PLAYURL:
-				sprintf(commandString,"%s '%s'",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				mainApp->CTK_setTermKeyRun(false);
+				sprintf(commandString,"%s '%s' &>/dev/null",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
 				system(commandString);
+				mainApp->CTK_setTermKeyRun(true);
+				mainApp->CTK_setDefaultGadget(urlList);
+				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
 
 			case DLURL:
-				oneLiner(false,"(cd '%s';wget -c '%s' & ) &>/dev/null",downloadFolder,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				char	*oname;
+				const char	*ptr;
+
+				ptr=strrchr(urlList->listItems[urlList->listItemNumber]->label.c_str(),'/');
+				ptr++;
+				mainApp->utils->CTK_entryDialog(mainApp,"Enter New Filename ...",ptr,"Download","Download File",true);
+
+				if(mainApp->utils->intResult==1)
+					oneLiner(false,"(cd '%s';nohup wget -c '%s' -O '%s' & ) &>/dev/null",downloadFolder,urlList->listItems[urlList->listItemNumber]->label.c_str(),mainApp->utils->stringResult.c_str());
+
+				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
 
 			case QUIT:
@@ -334,10 +348,10 @@ int main(int argc, char **argv)
 	quit->CTK_setSelectCB(buttonsCB,(void*)QUIT);
 
 	mainApp->CTK_setDefaultGadget(urlList);
-	mainApp->CTK_clearScreen();
-	mainApp->CTK_updateScreen(mainApp,NULL);
-	while(mainApp->CTK_mainEventLoop(-500,false)!='q');
-
+	//mainApp->CTK_clearScreen();
+	//mainApp->CTK_updateScreen(mainApp,NULL);
+//	while(mainApp->CTK_mainEventLoop(-500,false)!='q');
+	mainApp->CTK_mainEventLoop();
 	doQuit();
 
 	return(0);
