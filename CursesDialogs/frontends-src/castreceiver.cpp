@@ -229,12 +229,11 @@ void buttonsCB(void *inst,void *userdata)
 
 			case PLAYURL:
 				mainApp->CTK_setTermKeyRun(false);
+					
 					sprintf(commandString,"%s '%s' &>/dev/null",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
 					system(commandString);
 				mainApp->CTK_setTermKeyRun(true);
 				mainApp->CTK_setDefaultGadget(urlList);
-				mainApp->CTK_clearScreen();
-				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
 
 			case DLURL:
