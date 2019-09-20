@@ -1,4 +1,5 @@
 0.0.7
+Added prefs to castreceiver.
 Fixed omxplayer missing input
 Done CastReceiver frontend.
 Started CastReceiver frontend.

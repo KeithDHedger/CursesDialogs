@@ -45,6 +45,10 @@ int							castTimout=30;
 
 char						commandString[PATH_MAX];
 
+//prefs
+std::vector<varsStruct> 	prefsVs;
+varsStruct					vsItem;
+char						*prefsFile;
 
 void printhelp(void)
 {
@@ -155,6 +159,15 @@ void doQuit(void)
 				fprintf(fp,"%s\n",urlList->listItems[j]->label.c_str());
 			fclose(fp);
 		}
+
+	prefsVs.clear();
+	vsItem.vType=CHARVAR;
+	vsItem.charVar=downloadFolder;
+	vsItem.varName="downloads";
+	prefsVs.push_back(vsItem);
+
+	mainApp->CTK_saveVars(prefsFile,prefsVs);
+	free(prefsFile);
 	delete mainApp;
 	exit(0);
 }
@@ -229,7 +242,6 @@ void buttonsCB(void *inst,void *userdata)
 
 			case PLAYURL:
 				mainApp->CTK_setTermKeyRun(false);
-					
 					sprintf(commandString,"%s '%s' &>/dev/null",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
 					system(commandString);
 				mainApp->CTK_setTermKeyRun(true);
@@ -308,10 +320,18 @@ int main(int argc, char **argv)
 				}
 		}
 
+	asprintf(&prefsFile,"%s/.config/castreceiver.rs",getenv("HOME"));
+	prefsVs=mainApp->CTK_loadVars(prefsFile);
 	if(optind<argc)
 		downloadFolder=strdup(argv[optind]);
 	else
-		asprintf(&downloadFolder,"%s/Downloads",getenv("HOME"));
+		{
+			vsItem=mainApp->CTK_findVar(prefsVs,"downloads");
+			if(vsItem.vType!=BADTYPE)
+				asprintf(&downloadFolder,"%s",vsItem.charVar.c_str());
+			else
+				asprintf(&downloadFolder,"%s/Downloads",getenv("HOME"));
+		}
 
 	oneLiner(false,"mkdir -p '%s' &>/dev/null",downloadFolder);
 	oneLiner(false,"touch '%s' &>/dev/null",recentName);
@@ -350,8 +370,6 @@ int main(int argc, char **argv)
 	quit->CTK_setSelectCB(buttonsCB,(void*)QUIT);
 
 	mainApp->CTK_setDefaultGadget(urlList);
-	//mainApp->CTK_clearScreen();
-	//mainApp->CTK_updateScreen(mainApp,NULL);
 //	while(mainApp->CTK_mainEventLoop(-500,false)!='q');
 	mainApp->CTK_mainEventLoop();
 	doQuit();
