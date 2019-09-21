@@ -27,6 +27,7 @@ CTK_cursesButtonClass		*selectDLFolder;
 CTK_cursesButtonClass		*waitForCast;
 CTK_cursesButtonClass		*showURL;
 CTK_cursesButtonClass		*downloadURL;
+CTK_cursesButtonClass		*clearRecent;
 CTK_cursesButtonClass		*quit;
 
 char						*downloadFolder=NULL;
@@ -166,7 +167,7 @@ void doQuit(void)
 	vsItem.varName="downloads";
 	prefsVs.push_back(vsItem);
 
-	mainApp->CTK_saveVars(prefsFile,prefsVs);
+	mainApp->utils->CTK_saveVars(prefsFile,prefsVs);
 	free(prefsFile);
 	delete mainApp;
 	exit(0);
@@ -262,6 +263,13 @@ void buttonsCB(void *inst,void *userdata)
 				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
 
+			case CLEARRECENT:
+				urlList->CTK_clearList();
+				sprintf(commandString,":> %s/%s",getenv("HOME"),recentName);
+				system(commandString);
+				getRecents();
+				break;
+
 			case QUIT:
 				doQuit();
 				break;
@@ -320,13 +328,13 @@ int main(int argc, char **argv)
 				}
 		}
 
-	asprintf(&prefsFile,"%s/.config/castreceiver.rs",getenv("HOME"));
-	prefsVs=mainApp->CTK_loadVars(prefsFile);
+	asprintf(&prefsFile,"%s/.config/castreceiver.rc",getenv("HOME"));
+	prefsVs=mainApp->utils->CTK_loadVars(prefsFile);
 	if(optind<argc)
 		downloadFolder=strdup(argv[optind]);
 	else
 		{
-			vsItem=mainApp->CTK_findVar(prefsVs,"downloads");
+			vsItem=mainApp->utils->CTK_findVar(prefsVs,"downloads");
 			if(vsItem.vType!=BADTYPE)
 				asprintf(&downloadFolder,"%s",vsItem.charVar.c_str());
 			else
@@ -366,7 +374,11 @@ int main(int argc, char **argv)
 	showURL->CTK_setSelectCB(buttonsCB,(void*)PLAYURL);
 	downloadURL=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(2,urlListWidth,CONTROLCNT,16,3),dialogSY+urlListHite+2+2+2,16,1,"Download  URL");
 	downloadURL->CTK_setSelectCB(buttonsCB,(void*)DLURL);
-	quit=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(2,urlListWidth,CONTROLCNT,16,4),dialogSY+urlListHite+2+2+2,16,1,"     Quit    ");
+
+	clearRecent=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(2,urlListWidth,CONTROLCNT,16,4),dialogSY+urlListHite+2+2+2,16,1,"Clear   URL's");
+	clearRecent->CTK_setSelectCB(buttonsCB,(void*)CLEARRECENT);
+
+	quit=mainApp->CTK_addNewButton(mainApp->utils->CTK_getGadgetPosX(2,urlListWidth,CONTROLCNT,16,5),dialogSY+urlListHite+2+2+2,16,1,"     Quit    ");
 	quit->CTK_setSelectCB(buttonsCB,(void*)QUIT);
 
 	mainApp->CTK_setDefaultGadget(urlList);
