@@ -207,11 +207,11 @@ void buttonsCB(void *inst,void *userdata)
 						label="Download Folder: ";
 						label+=downloadFolder;
 						label+="\nCurrent URL    : ";
-						label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
+						if(urlList->listItems.size()>0)
+							label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
 						infoLabel->CTK_updateText(label.c_str());
 						mainApp->CTK_updateScreen(mainApp,(void*)1);
 					}
-
 				break;
 
 			case WAITFORCAST:
