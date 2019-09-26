@@ -182,9 +182,7 @@ void selectURLCB(void *inst,void *userdata)
 	if(sl->listItems.size()==0)
 		return;
 
-	label="Download Folder: ";
-	label+=downloadFolder;
-	label+="\nCurrent URL    : ";
+	label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 	label+=sl->listItems[sl->listItemNumber]->label;
 	infoLabel->CTK_updateText(label.c_str());
 }
@@ -204,9 +202,7 @@ void buttonsCB(void *inst,void *userdata)
 					{
 						free(downloadFolder);
 						asprintf(&downloadFolder,"%s",mainApp->utils->stringResult.c_str());
-						label="Download Folder: ";
-						label+=downloadFolder;
-						label+="\nCurrent URL    : ";
+						label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 						if(urlList->listItems.size()>0)
 							label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
 						infoLabel->CTK_updateText(label.c_str());
@@ -226,9 +222,7 @@ void buttonsCB(void *inst,void *userdata)
 							urlList->listStart=0;
 						urlList->listItemNumber=urlList->listItems.size()-1;
 
-						label="Download Folder: ";
-						label+=downloadFolder;
-						label+="\nCurrent URL    : ";
+						label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 						label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
 						infoLabel->CTK_updateText(label.c_str());
 						mainApp->CTK_setDefaultGadget(urlList);
@@ -358,9 +352,7 @@ int main(int argc, char **argv)
 		urlList->listStart=0;
 	urlList->listItemNumber=urlList->listItems.size()-1;
 
-	label="Download Folder: ";
-	label+=downloadFolder;
-	label+="\nCurrent URL    : ";
+	label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 	if(urlList->listItems.size()>0)
 		label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
 
