@@ -124,7 +124,9 @@ int main(int argc, char **argv)
 		{
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			lastkey=mainApp->CTK_mainEventLoop(-1*delay);
+			mainApp->CTK_clearScreen();
+			mainApp->CTK_updateScreen(mainApp,(void*)1);
+			lastkey=mainApp->CTK_mainEventLoop(-1*delay,false);
 			if(lastkey=='q')
 				break;
 		}

@@ -1,4 +1,5 @@
 0.0.7
+Fixed UI errors in image viewer.
 Select plalists on ctkmusicplayer startup.
 Code clean ctkcastreceiver.
 Added clear recent urls to ctkcastreceiver.
