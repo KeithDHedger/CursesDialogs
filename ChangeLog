@@ -1,4 +1,5 @@
 0.0.7
+Select plalists on ctkmusicplayer startup.
 Code clean ctkcastreceiver.
 Added clear recent urls to ctkcastreceiver.
 Added prefs to castreceiver.
