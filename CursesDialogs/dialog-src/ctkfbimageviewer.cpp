@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	files->LFSTK_sortByTypeAndName();
 
 	lab=mainApp->CTK_addNewLabel((mainApp->maxCols/2)-(labellen/2),1,labellen,1,label);
-	lab->CTK_setJustify(CENTRE);
+	lab->CTK_setJustify(CENTREJUSTIFY);
 
 	CTK_cursesFBImageClass	*img=mainApp->CTK_addNewFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[0].path.c_str());
 	img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
