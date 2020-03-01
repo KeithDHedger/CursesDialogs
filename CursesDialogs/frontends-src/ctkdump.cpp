@@ -167,6 +167,7 @@ void buttonSelectCB(void *inst,void *userdata)
 
 	if(userdata==(void*)BTNABOUT)
 		cu.CTK_aboutDialog(mainApp,"ctkdump","CTK Dump Frontend","Copyright 2019 K.D.Hedger","keithdhedger@gmail.com","http://keithhedger.freeddns.org","K.D.Hedger",DATADIR "/help/LICENSE");
+	mainApp->CTK_updateScreen(mainApp,SCREENUPDATEALL);
 }
 
 int main(int argc, char **argv)
@@ -233,6 +234,7 @@ int main(int argc, char **argv)
 	finishDrop->CTK_addDropItem("On Finish Do Restart");
 	finishDrop->CTK_addDropItem("On Finish Do Nothing");
 	finishDrop->selectedItem=3;
+	finishDrop->CTK_setSelectCB(dropboxCB,(void*)2);
 
 	maxlen=strlen("Print Dump Command");
 	std::string	labelstr=cu.CTK_padString(std::string("Run Dump Command"),maxlen);
