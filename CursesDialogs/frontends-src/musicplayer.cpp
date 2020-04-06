@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 	songsHite=(chooserHite+4)/2;
 	artSY=songsHite+4;
 	artHite=songsHite;
-	asprintf(&resources,"%s/MusicPlayer",DATADIR);
+	asprintf(&resources,"%s",DATADIR);
 //	asprintf(&resources,"%s","/media/LinuxData/Development64/Projects/CursesDialogs/CursesDialogs/resources/");
 //	fprintf(stderr,"resources=%s\n",resources);
 	asprintf(&fifoName,"/tmp/mplayerfifo%i",getpid());
