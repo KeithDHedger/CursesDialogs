@@ -435,8 +435,6 @@ int main(int argc, char **argv)
 	nowPlaying->CTK_setSelectable(false);
 
 	sprintf(imagepath,"%s/MusicPlayer/start.png",resources);
-	fprintf(stderr,">>imagepath=%s<<<\n",imagepath);
-	return(0);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,0),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)START);
 	sprintf(imagepath,"%s/MusicPlayer/prev.png",resources);
