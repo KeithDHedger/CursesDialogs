@@ -27,8 +27,6 @@
 
 struct option long_options[]=
 	{
-		{"window-name",1,0,'w'},
-		{"dialog-title",1,0,'t'},
 		{"start-folder",1,0,'s'},
 		{"default-name",1,0,'n'},
 		{"version",0,0,'v'},
@@ -40,7 +38,6 @@ void printhelp(void)
 {
 	printf("Curses based file save dialog\n"
 	"Usage: " APPNAME " [OPTION]\n"
-	" -w, --window-name	Window Name\n"
 	" -s, --start-folder	Start Folder\n"
 	" -n, --default-name	Default file name\n"
 	" -v, --version		Version\n"
@@ -48,21 +45,18 @@ void printhelp(void)
 	"Report bugs to keithdhedger@gmail.com\n"
 	"\nExample:\n"
 	"To get the reults of the dialog into a bash varable Use:\n"
-	"{ result=$(" APPNAME " -w MyWindow -s /etc -n SaveFileName 2>&1 >&3 3>&-); } 3>&1\n"
+	"{ result=$(" APPNAME " -s /etc -n SaveFileName 2>&1 >&3 3>&-); } 3>&1\n"
 	"echo $result\n"
 	);
 }
 
 int main(int argc, char **argv)
 {
-	CTK_mainAppClass		*mainApp;
 	std::string				str;
 	CTK_cursesUtilsClass	cu;
 	char					*folder=NULL;
 	int						c;
 	int						option_index;
-	const char				*wname=NULL;
-	const char				*dname=NULL;
 	const char				*fname="Untitled";
 
 	while(true)
@@ -75,12 +69,8 @@ int main(int argc, char **argv)
 
 			switch(c)
 				{
-					case 'w':
-						wname=optarg;
-						break;
-
 					case 's':
-						folder=optarg;
+						folder=strdup(optarg);
 						break;
 
 					case 'n':
@@ -105,15 +95,25 @@ int main(int argc, char **argv)
 				}
 		}
 
-	mainApp=new CTK_mainAppClass();
-	cu.CTK_openFile(mainApp,wname,folder,false,fname);
-	if(cu.isValidFile==true)
-		fprintf(stderr,"%s/%s",cu.inFolder.c_str(),cu.stringResult.c_str());
-	else
-		fprintf(stderr,"");
+
+	if(folder==NULL)
+		folder=get_current_dir_name();
+
+	cu.CTK_fileChooserDialog(folder,CUSAVEFILE,NULL,fname);
+	if(cu.dialogReturnData.isValidData==true)
+		fprintf(stderr,"%s\n",cu.dialogReturnData.stringValue.c_str());
 
 	SETSHOWCURS;
-	delete mainApp;
+
+//	mainApp=new CTK_mainAppClass();
+//	cu.CTK_openFile(mainApp,wname,folder,false,fname);
+//	if(cu.isValidFile==true)
+//		fprintf(stderr,"%s/%s",cu.inFolder.c_str(),cu.stringResult.c_str());
+//	else
+//		fprintf(stderr,"");
+
+	free(folder);
+	SETSHOWCURS;
 	return(0);
 }
 

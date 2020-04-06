@@ -27,7 +27,6 @@
 
 struct option long_options[]=
 	{
-		{"window-name",1,0,'w'},
 		{"dialog-title",1,0,'t'},
 		{"start-folder",1,0,'s'},
 		{"version",0,0,'v'},
@@ -39,7 +38,6 @@ void printhelp(void)
 {
 	printf("Curses based file chooser\n"
 	"Usage: " APPNAME " [OPTION]\n"
-	" -w, --window-name	Window Name\n"
 	" -s, --start-folder	Start Folder\n"
 	" -v, --version		Version\n"
 	" -h, -?, --help		Help\n\n"
@@ -53,31 +51,23 @@ void printhelp(void)
 
 int main(int argc, char **argv)
 {
-	CTK_mainAppClass		*mainApp;
-	std::string				str;
 	CTK_cursesUtilsClass	cu;
 	char					*folder=NULL;
 	int						c;
 	int						option_index;
-	const char				*wname=NULL;
-	const char				*dname=NULL;
 
 	while(true)
 		{
 			option_index=0;
 
-			c=getopt_long(argc,argv,"v?h:w:s:",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?h:s:",long_options,&option_index);
 			if(c==-1)
 				break;
 
 			switch(c)
 				{
-					case 'w':
-						wname=optarg;
-						break;
-
 					case 's':
-						folder=optarg;
+						folder=strdup(optarg);
 						break;
 
 					case 'v':
@@ -98,15 +88,17 @@ int main(int argc, char **argv)
 				}
 		}
 
-	mainApp=new CTK_mainAppClass();
-	cu.CTK_openFile(mainApp,wname,folder);
-	if(cu.isValidFile==true)
-		fprintf(stderr,"%s",cu.stringResult.c_str());
+	if(folder==NULL)
+		folder=get_current_dir_name();
+
+	cu.CTK_fileChooserDialog(folder,CUOPENFILE);
+	if(cu.dialogReturnData.isValidData==true)
+		fprintf(stderr,"%s\n",cu.dialogReturnData.stringValue.c_str());
 	else
 		fprintf(stderr,"");
 
+	free(folder);
 	SETSHOWCURS;
-	delete mainApp;
 	return(0);
 }
 

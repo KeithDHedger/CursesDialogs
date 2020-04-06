@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	const char				*wname=NULL;
 	const char				*title=NULL;
 	const char				*bodytext="What? ...";
-	int						buttons=1;
+	int						buttons=-1;
 
 	while(true)
 		{
@@ -109,13 +109,20 @@ int main(int argc, char **argv)
 			}
 		}
 
-	mainApp=new CTK_mainAppClass();
-
-	cu.CTK_queryDialog(mainApp,bodytext,wname,title,buttons);
-	buttons=cu.intResult;
-	fprintf(stderr,"%i",cu.intResult);
+	if(cu.CTK_queryDialog(bodytext,wname,title,buttons)==true)
+		{
+			SETSHOWCURS;
+			switch(cu.dialogReturnData.intValue)
+				{
+					case CUQUERYOK:
+						return(1);
+						break;
+					case CUQUERYNO:
+						return(2);
+						break;
+				}
+		}
 
 	SETSHOWCURS;
-	delete mainApp;
-	return(buttons);
+	return(0);
 }

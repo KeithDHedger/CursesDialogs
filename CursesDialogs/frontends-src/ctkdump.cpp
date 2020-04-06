@@ -98,16 +98,18 @@ void setCommandLine(void)
 	str+=" ";
 	str+=devName;
 	commandLine->CTK_updateText(str.c_str(),false,false);
+	mainApp->CTK_updateScreen(mainApp,NULL);
 }
 
-void destSelectCB(void *inst,void *userdata)
+bool destSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesChooserClass	*ch=static_cast<CTK_cursesChooserClass*>(inst);
 
 	setCommandLine();
+	return(true);
 }
 
-void devSelectCB(void *inst,void *userdata)
+bool devSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesListBoxClass		*ls=static_cast<CTK_cursesListBoxClass*>(inst);
 	long						ud=(long)ls->listItems[ls->listItemNumber]->userData;
@@ -117,9 +119,10 @@ void devSelectCB(void *inst,void *userdata)
 	str=devStrings[ud].substr(devStrings[ud].find("LABEL=\"")+7);
 	devLabel=str.substr(0,str.length()-2);
 	setCommandLine();
+	return(true);
 }
 
-void dropboxCB(void *inst,void *userdata)
+bool dropboxCB(void *inst,void *userdata)
 {
 	CTK_cursesDropClass		*db=static_cast<CTK_cursesDropClass*>(inst);
 
@@ -128,17 +131,19 @@ void dropboxCB(void *inst,void *userdata)
 	if(userdata==(void*)1)
 		dumpLevel=db->selectedItem;
 	setCommandLine();
+	return(true);
 }
 
-void inputSelectCB(void *inst,void *userdata)
+bool inputSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesInputClass	*inp=static_cast<CTK_cursesInputClass*>(inst);
 
 	blockSize=atoi(blockInp->CTK_getText());
 	setCommandLine();
+	return(true);
 }
 
-void buttonSelectCB(void *inst,void *userdata)
+bool buttonSelectCB(void *inst,void *userdata)
 {
 	CTK_cursesButtonClass	*btn=static_cast<CTK_cursesButtonClass*>(inst);
 
@@ -166,8 +171,12 @@ void buttonSelectCB(void *inst,void *userdata)
 		fprintf(stderr,"%s\n",commandLine->CTK_getText().c_str());
 
 	if(userdata==(void*)BTNABOUT)
-		cu.CTK_aboutDialog(mainApp,"ctkdump","CTK Dump Frontend","Copyright 2019 K.D.Hedger","keithdhedger@gmail.com","http://keithhedger.freeddns.org","K.D.Hedger",DATADIR "/help/LICENSE");
-	mainApp->CTK_updateScreen(mainApp,SCREENUPDATEALL);
+		{
+			cu.CTK_aboutDialog("ctkdump","CTK Dump Frontend","Copyright 2019 K.D.Hedger","keithdhedger@gmail.com","http://keithhedger.freeddns.org","K.D.Hedger",DATADIR "/help/LICENSE");
+			mainApp->CTK_clearScreen();
+		}
+	mainApp->CTK_updateScreen(mainApp,NULL);
+	return(true);
 }
 
 int main(int argc, char **argv)
@@ -202,7 +211,6 @@ int main(int argc, char **argv)
 	destChooser->CTK_selectFolder(mainApp,"/media");
 	mainApp->CTK_addChooserBox(destChooser);
 	destChooser->CTK_setSelectCB(destSelectCB,(void*)DEVDEST);
-
 //compress level
 	compressDrop=mainApp->CTK_addNewDropDownBox(mainApp,3+40+3+40+3,2,22,1,"Compress Level 9");
 	for(int j=1;j<10;j++)
@@ -256,9 +264,9 @@ int main(int argc, char **argv)
 
 //do what
 	commandLine=mainApp->CTK_addNewTextBox(3,3+12,mainApp->maxCols-4,1,"",true);
-	devSelectCB(srcdevlist,NULL);
+	bool sink=devSelectCB(srcdevlist,NULL);
 	mainApp->CTK_setDefaultGadget(srcdevlist);
-	mainApp->CTK_mainEventLoop();
+	mainApp->CTK_mainEventLoop(0,true,true);
 
 	SETSHOWCURS;
 	delete mainApp;

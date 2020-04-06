@@ -197,13 +197,13 @@ void getMeta(void)
 	updated=false;
 }
 
-void selectSongCB(void *inst,void *userdata)
+bool selectSongCB(void *inst,void *userdata)
 {
 	char *command;
 	CTK_cursesListBoxClass	*sl=static_cast<CTK_cursesListBoxClass*>(inst);
 
 	if(sl->listItems.size()==0)
-		return;
+		return(true);
 
 	sprintf(commandString,"p\\npausing_keep_force loadlist \\\"%s\\\"",playLists->filePath.c_str());
 	sendToPipe(commandString);
@@ -218,9 +218,10 @@ void selectSongCB(void *inst,void *userdata)
 
 	playing=true;
 	paused=false;
+	return(true);
 }
 
-void controlsCB(void *inst,void *userdata)
+bool controlsCB(void *inst,void *userdata)
 {
 	CTK_cursesFBImageClass	*bc=static_cast<CTK_cursesFBImageClass*>(inst);
 	long					ud=(long)userdata;
@@ -230,7 +231,7 @@ void controlsCB(void *inst,void *userdata)
 		{
 			case START:
 				if(playing==false)
-					return;
+					return(true);
 				sprintf(commandString,"loadlist \\\"%s\\\"",playLists->filePath.c_str());
 				sendToPipe(commandString);
 				playing=true;
@@ -239,7 +240,7 @@ void controlsCB(void *inst,void *userdata)
 
 			case PREVIOUS:
 				if(playing==false)
-					return;
+					return(true);
 				sendToPipe("pt_step -1");
 				paused=false;
 				break;
@@ -251,12 +252,12 @@ void controlsCB(void *inst,void *userdata)
 						paused=!paused;
 					}
 				if(playing==true)
-					return;
+					return(true);
 				break;
 
 			case STOP:
 				if(playing==false)
-					return;
+					return(true);
 				for(int j=0;j<songs.size();j++)
 					free(songs[j]);
 				songs.clear();
@@ -273,14 +274,14 @@ void controlsCB(void *inst,void *userdata)
 
 			case PAUSE:
 				if(playing==false)
-					return;
+					return(true);
 				sendToPipe("p");
 				paused=!paused;
 				break;
 
 			case END:
 				if(playing==false)
-					return;
+					return(true);
 				sprintf(commandString,"p\\npausing_keep_force loadlist \\\"%s\\\"",playLists->filePath.c_str());
 				sendToPipe(commandString);
 				sprintf(commandString,"pausing_keep_force pt_step %i\\np",songs.size()-1);
@@ -291,7 +292,7 @@ void controlsCB(void *inst,void *userdata)
 
 			case NEXT:
 				if(playing==false)
-					return;
+					return(true);
 				sendToPipe("pt_step 1");
 				paused=false;
 				break;
@@ -301,9 +302,10 @@ void controlsCB(void *inst,void *userdata)
 				doQuit=true;
 				break;
 		}
+	return(true);
 }
 
-void playListsCB(void *inst,void *userdata)
+bool playListsCB(void *inst,void *userdata)
 {
 	CTK_cursesChooserClass	*ch=static_cast<CTK_cursesChooserClass*>(inst);
 	long					ud=(long)userdata;
@@ -312,7 +314,7 @@ void playListsCB(void *inst,void *userdata)
 	char					buffer2[PATH_MAX];
 
 	if((ch->files->data[ch->lb->listItemNumber].fileType==FOLDERTYPE) || (ch->files->data[ch->lb->listItemNumber].fileType==FILELINKTYPE))
-		return;
+		return(true);
 	folder=ch->folderPath.c_str();
 	for(int j=0;j<songs.size();j++)
 		free(songs[j]);
@@ -344,6 +346,7 @@ void playListsCB(void *inst,void *userdata)
 	sprintf(commandString,"loadlist '%s'",ch->filePath.c_str());
 	sendToPipe(commandString);
 	playing=true;
+	return(true);
 }
 
 int main(int argc, char **argv)
@@ -363,6 +366,7 @@ int main(int argc, char **argv)
 	artSY=songsHite+4;
 	artHite=songsHite;
 	asprintf(&resources,"%s/MusicPlayer",DATADIR);
+//	asprintf(&resources,"%s","/media/LinuxData/Development64/Projects/CursesDialogs/CursesDialogs/resources/");
 //	fprintf(stderr,"resources=%s\n",resources);
 	asprintf(&fifoName,"/tmp/mplayerfifo%i",getpid());
 	asprintf(&outName,"/tmp/mplayerout%i",getpid());
@@ -430,28 +434,28 @@ int main(int argc, char **argv)
 	nowPlaying=mainApp->CTK_addNewTextBox(3,chooserHite+4,chooserWidth,3,"");
 	nowPlaying->CTK_setSelectable(false);
 
-	sprintf(imagepath,"%s/MusicPlayer/start.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/start.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,0),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)START);
-	sprintf(imagepath,"%s/MusicPlayer/prev.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/prev.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,1),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)PREVIOUS);
-	sprintf(imagepath,"%s/MusicPlayer/play.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/play.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,2),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)PLAY);
-	sprintf(imagepath,"%s/MusicPlayer/stop.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/stop.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,3),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)STOP);
-	sprintf(imagepath,"%s/MusicPlayer/pause.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/pause.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,4),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)PAUSE);
-	sprintf(imagepath,"%s/MusicPlayer/next.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/next.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,5),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)NEXT);
-	sprintf(imagepath,"%s/MusicPlayer/end.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/end.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,6),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)END);
-	sprintf(imagepath,"%s/MusicPlayer/quit.png",DATADIR);
+	sprintf(imagepath,"%s/MusicPlayer/quit.png",resources);
 	image=mainApp->CTK_addNewFBImage(mainApp->utils->CTK_getGadgetPosX(midWay-(dialogWidth/2),dialogWidth,CONTROLCNT,4,7),controlsSY,4,4,imagepath);
 	image->CTK_setSelectCB(controlsCB,(void*)QUIT);
 

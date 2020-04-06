@@ -35,7 +35,7 @@ struct option long_options[]=
 
 void printhelp(void)
 {
-	printf("Curses based file save dialog\n"
+	printf("Curses based slideshow\n"
 	"Usage: " APPNAME " [OPTION] /path/to/folder/with/images\n"
 	" -p, --pause	Delay in ms before next picture\n"
 	" -v, --version	Version\n"
@@ -56,6 +56,7 @@ int main(int argc, char **argv)
 	int						option_index;
 	const char				*folder="./";
 	int						delay=4000;
+	int						bufflen;
 
 	while(true)
 		{
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
 		folder=argv[optind];
 
 	cs.windowBackCol=BACK_WHITE;
-	mainApp->CTK_setColours(cs);
+	mainApp->CTK_setColours(&cs,true);
 
 	LFSTK_findClass			*files=new LFSTK_findClass();;
 	files->LFSTK_setFindType(FILETYPE);
@@ -118,16 +119,12 @@ int main(int argc, char **argv)
 	CTK_cursesFBImageClass	*img=mainApp->CTK_addNewFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[0].path.c_str());
 	img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
 
-	mainApp->CTK_mainEventLoop(-1*delay);
-	int lastkey;
 	for(int j=1;j<files->data.size();j++)
 		{
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			mainApp->CTK_clearScreen();
-			mainApp->CTK_updateScreen(mainApp,(void*)1);
-			lastkey=mainApp->CTK_mainEventLoop(-1*delay,false);
-			if(lastkey=='q')
+			bufflen=mainApp->CTK_mainEventLoop(-1*delay,true);
+			if((bufflen>0) && (mainApp->readKey->inputBuffer.c_str()[0]=='q'))
 				break;
 		}
 

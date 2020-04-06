@@ -51,25 +51,20 @@ void printhelp(void)
 	"Report bugs to keithdhedger@gmail.com\n"
 	"\nExample:\n"
 	"To get the reults of the dialog into a bash varable Use:\n"
-	"{ result=$(" APPNAME " -w MyWindow -b 'Say somthing?' -t 'Input ...' -i 'Some input ...' -c  2>&1 >&3 3>&-); } 3>&1\n"
+	"{ result=$(" APPNAME " -w MyWindow -b 'Say somthing?' -t 'Input ...' -i 'Some input ...' -c 2>&1 >&3 3>&-); } 3>&1\n"
 	"echo $result\n"
-	"The return code from the app also reflects the button seelected like so:\n"
-	APPNAME " -w MyWindow -b 'Say somthing?' -t 'Input ...' -i 'Some input ...' -c 2>/dev/null;echo \"Button pressed $?\"\n" 
 	);
 }
 
 int main(int argc, char **argv)
 {
-	CTK_mainAppClass		*mainApp;
-	std::string				str;
 	CTK_cursesUtilsClass	cu;
 	int						c;
 	int						option_index;
-	const char				*wname=NULL;
-	const char				*title=NULL;
+	const char				*wname="";
+	const char				*title="";
 	const char				*bodytext="What? ...";
 	const char				*inputtext="...";
-	int						buttons=1;
 	bool					cancel=false;
 
 	while(true)
@@ -120,14 +115,9 @@ int main(int argc, char **argv)
 				}
 		}
 
-	mainApp=new CTK_mainAppClass;
-
-	if(cu.CTK_entryDialog(mainApp,bodytext,inputtext,wname,title,cancel))
-		fprintf(stderr,"%s",cu.stringResult.c_str());
-
-	buttons=cu.intResult;
+	if(cu.CTK_entryDialog(bodytext,inputtext,wname,title,cancel,-1)==true)
+		fprintf(stderr,"%s",cu.dialogReturnData.stringValue.c_str());
 
 	SETSHOWCURS;
-	delete mainApp;
-	return(buttons);
+	return(0);
 }

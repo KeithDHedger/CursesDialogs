@@ -173,21 +173,22 @@ void doQuit(void)
 	exit(0);
 }
 
-void selectURLCB(void *inst,void *userdata)
+bool selectURLCB(void *inst,void *userdata)
 {
 	std::string				label;
 
 	CTK_cursesListBoxClass	*sl=static_cast<CTK_cursesListBoxClass*>(inst);
 
 	if(sl->listItems.size()==0)
-		return;
+		return(true);
 
 	label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 	label+=sl->listItems[sl->listItemNumber]->label;
 	infoLabel->CTK_updateText(label.c_str());
+	return(true);
 }
 
-void buttonsCB(void *inst,void *userdata)
+bool buttonsCB(void *inst,void *userdata)
 {
 	CTK_cursesButtonClass	*bc=static_cast<CTK_cursesButtonClass*>(inst);
 	long					ud=(long)userdata;
@@ -197,11 +198,11 @@ void buttonsCB(void *inst,void *userdata)
 	switch(ud)
 		{
 			case SELECTDLFOLDER:
-				mainApp->utils->CTK_selectFolder(mainApp,"Select download folder",downloadFolder);
-				if(mainApp->utils->isValidFile==true)
+				mainApp->utils->CTK_fileChooserDialog(downloadFolder,CUOPENFOLDER);
+				if(mainApp->utils->dialogReturnData.isValidData==true)
 					{
 						free(downloadFolder);
-						asprintf(&downloadFolder,"%s",mainApp->utils->stringResult.c_str());
+						asprintf(&downloadFolder,"%s",mainApp->utils->dialogReturnData.stringValue.c_str());
 						label=label + "Download Folder: " + downloadFolder + "\nCurrent URL    : ";
 						if(urlList->listItems.size()>0)
 							label+=urlList->listItems[urlList->listItemNumber]->label.c_str();
@@ -211,9 +212,9 @@ void buttonsCB(void *inst,void *userdata)
 				break;
 
 			case WAITFORCAST:
-				mainApp->CTK_setTermKeyRun(false);
-					recurl=oneLiner(true,"timeout -k %is %is castreceiver -ue",castTimout,castTimout);
-				mainApp->CTK_setTermKeyRun(true);
+				//mainApp->CTK_setTermKeyRun(false);
+				recurl=oneLiner(true,"timeout -k %is %is castreceiver -ue",castTimout,castTimout);
+				//mainApp->CTK_setTermKeyRun(true);
 				if((recurl!=NULL) && (strlen(recurl)>1))
 					{
 						urlList->CTK_addListItem(recurl);
@@ -236,10 +237,10 @@ void buttonsCB(void *inst,void *userdata)
 				break;
 
 			case PLAYURL:
-				mainApp->CTK_setTermKeyRun(false);
-					sprintf(commandString,"%s '%s' &>/dev/null",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
-					system(commandString);
-				mainApp->CTK_setTermKeyRun(true);
+				//mainApp->CTK_setTermKeyRun(false);
+				sprintf(commandString,"%s '%s' &>/dev/null",playerCommand,urlList->listItems[urlList->listItemNumber]->label.c_str());
+				system(commandString);
+				//mainApp->CTK_setTermKeyRun(true);
 				mainApp->CTK_setDefaultGadget(urlList);
 				break;
 
@@ -249,10 +250,10 @@ void buttonsCB(void *inst,void *userdata)
 
 				ptr=strrchr(urlList->listItems[urlList->listItemNumber]->label.c_str(),'/');
 				ptr++;
-				mainApp->utils->CTK_entryDialog(mainApp,"Enter New Filename ...",ptr,"Download","Download File",true);
+				mainApp->utils->CTK_entryDialog("Enter New Filename ...",ptr,"Download","Download File",true);
 
-				if(mainApp->utils->intResult==1)
-					oneLiner(false,"(cd '%s';nohup wget -c '%s' -O '%s' & ) &>/dev/null",downloadFolder,urlList->listItems[urlList->listItemNumber]->label.c_str(),mainApp->utils->stringResult.c_str());
+				if(mainApp->utils->dialogReturnData.intValue==CUENTRYOK)
+					oneLiner(false,"(cd '%s';nohup wget -c '%s' -O '%s' & ) &>/dev/null",downloadFolder,urlList->listItems[urlList->listItemNumber]->label.c_str(),mainApp->utils->dialogReturnData.stringValue.c_str());
 
 				mainApp->CTK_updateScreen(mainApp,(void*)1);
 				break;
@@ -268,6 +269,7 @@ void buttonsCB(void *inst,void *userdata)
 				doQuit();
 				break;
 		}
+	return(true);
 }
 
 int main(int argc, char **argv)
