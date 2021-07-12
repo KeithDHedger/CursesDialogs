@@ -130,16 +130,14 @@ int main(int argc, char **argv)
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
 			bufflen=mainApp->CTK_mainEventLoop(-1*delay,false);
-<<<<<<< HEAD
+
 			mainApp->CTK_clearScreen();
 			mainApp->CTK_updateScreen(mainApp,NULL);
 			fflush(NULL);
 			img->CTK_drawGadget(false);
-=======
->>>>>>> c82aadb4619e3e36db659442bdb24e92d0bc51b4
+
 			if((bufflen>0) && (mainApp->readKey->inputBuffer.c_str()[0]=='q'))
 				break;
-			img->CTK_drawGadget();
 		}
 
 	SETSHOWCURS;
