@@ -123,9 +123,10 @@ int main(int argc, char **argv)
 		{
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			bufflen=mainApp->CTK_mainEventLoop(-1*delay,true);
+			bufflen=mainApp->CTK_mainEventLoop(-1*delay,false);
 			if((bufflen>0) && (mainApp->readKey->inputBuffer.c_str()[0]=='q'))
 				break;
+			img->CTK_drawGadget();
 		}
 
 	SETSHOWCURS;
@@ -133,4 +134,5 @@ int main(int argc, char **argv)
 	printf("\n");
 	return 0;
 }
+
 
