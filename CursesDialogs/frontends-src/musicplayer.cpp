@@ -47,7 +47,7 @@ bool						doQuit=false;
 char						*oldfile=NULL;
 bool						updated=false;
 char						*outName=NULL;
-char						*fifoName=NULL;
+char						*musicFifoName=NULL;
 char						commandString[PATH_MAX];
 
 void printhelp(void)
@@ -123,7 +123,7 @@ void sendToPipe(const char *command)
 {
 	char	buffer[PATH_MAX];
 
-	sprintf(buffer,"echo -e \"%s\" >\"%s\" &",command,fifoName);
+	sprintf(buffer,"echo -e \"%s\" >\"%s\" &",command,musicFifoName);
 	system(buffer);
 }
 
@@ -368,13 +368,13 @@ int main(int argc, char **argv)
 	asprintf(&resources,"%s",DATADIR);
 //	asprintf(&resources,"%s","/media/LinuxData/Development64/Projects/CursesDialogs/CursesDialogs/resources/");
 //	fprintf(stderr,"resources=%s\n",resources);
-	asprintf(&fifoName,"/tmp/mplayerfifo%i",getpid());
+	asprintf(&musicFifoName,"/tmp/mplayerfifo%i",getpid());
 	asprintf(&outName,"/tmp/mplayerout%i",getpid());
-	sprintf(commandString,"mkfifo '%s'",fifoName);
+	sprintf(commandString,"mkfifo '%s'",musicFifoName);
 	system(commandString);
 
 //start mplayer
-	sprintf(commandString,"mplayer -quiet -slave -input file='%s' -idle >'%s' 2>/dev/null &",fifoName,outName);
+	sprintf(commandString,"mplayer -quiet -slave -input file='%s' -idle >'%s' 2>/dev/null &",musicFifoName,outName);
 	system(commandString);
 
 	while(true)
@@ -477,9 +477,9 @@ int main(int argc, char **argv)
 	SETSHOWCURS;
 	delete mainApp;
 	free(resources);
-	sprintf(commandString,"rm '%s' '%s'",fifoName,outName);
+	sprintf(commandString,"rm '%s' '%s'",musicFifoName,outName);
 	system(commandString);
-	free(fifoName);
+	free(musicFifoName);
 	free(outName);
 	for(int j=0;j<songs.size();j++)
 		free(songs[j]);
