@@ -120,21 +120,12 @@ int main(int argc, char **argv)
 	img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
 	img->CTK_setSelectable(false);
 
-	mainApp->CTK_clearScreen();
-	mainApp->CTK_updateScreen(mainApp,NULL);
-	fflush(NULL);
-	img->CTK_drawGadget(false);
-
+	mainApp->CTK_mainEventLoop(-1*delay,true);
 	for(int j=1;j<files->data.size();j++)
 		{
 			img->CTK_newFBImage(2,2,mainApp->maxCols-2,mainApp->maxRows-2,files->data[j].path.c_str());
 			img->sx=(mainApp->maxCols/2)-(img->wid/2/fbinf->charWidth)+1;
-			bufflen=mainApp->CTK_mainEventLoop(-1*delay,false);
-
-			mainApp->CTK_clearScreen();
-			mainApp->CTK_updateScreen(mainApp,NULL);
-			fflush(NULL);
-			img->CTK_drawGadget(false);
+			bufflen=mainApp->CTK_mainEventLoop(-1*delay,true);
 
 			if((bufflen>0) && (mainApp->readKey->inputBuffer.c_str()[0]=='q'))
 				break;
