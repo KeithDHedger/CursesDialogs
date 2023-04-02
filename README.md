@@ -82,7 +82,8 @@ ctkquery -w MyWindow -q 'Do What?' -t 'Question?' -b 7 2>/dev/null;echo "Button 
 ![Alt text](screenshots/query.png?raw=true "ctkquery")<br>
 
 <br><br>
-Report bugs etc to keithdhedger@gmail.com<br>
+BUGS etc.<br>
+kdhedger68713@gmail.com<br>
 <br><br>
 Please donate
 If you have a PayPal account you can donate any amount you like by logging into your account and click the 'Send Money' tab, enter my email address and then send it
