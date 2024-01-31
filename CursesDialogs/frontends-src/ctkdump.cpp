@@ -188,11 +188,11 @@ int main(int argc, char **argv)
 	char					buffer[PATH_MAX];
 	int						maxlen;
 
-	mainApp->colours.fancyGadgets=true;
-	mainApp->colours.listBoxType=INBOX;
-	mainApp->colours.labelBoxType=NOBOX;
-	mainApp->colours.textBoxType=INBOX;
-	mainApp->colours.windowBackCol=BACK_WHITE;
+//	mainApp->colours.fancyGadgets=true;
+//	mainApp->colours.listBoxType=INBOX;
+//	mainApp->colours.labelBoxType=NOBOX;
+//	mainApp->colours.textBoxType=INBOX;
+//	mainApp->colours.windowBackCol=BACK_WHITE;
 
 	cu.CTK_splashScreen(mainApp,"CTK Frontend to dump\nPlease wait while I collect disk data ...\n");
 

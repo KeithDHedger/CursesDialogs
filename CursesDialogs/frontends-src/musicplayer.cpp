@@ -413,12 +413,12 @@ int main(int argc, char **argv)
 	if(optind<argc)
 		folder=argv[optind];
 
-	mainApp->colours.fancyGadgets=true;
-	mainApp->colours.boxType=NOBOX;
-	mainApp->colours.textBoxType=INBOX;
-	mainApp->colours.windowBackCol=BACK_WHITE;
-	mainApp->colours.backCol=BACK_WHITE;
-	mainApp->colours.foreCol=FORE_BLACK;
+//	mainApp->colours.fancyGadgets=true;
+//	mainApp->colours.boxType=NOBOX;
+//	mainApp->colours.textBoxType=INBOX;
+//	mainApp->colours.windowBackCol=BACK_WHITE;
+//	mainApp->colours.backCol=BACK_WHITE;
+//	mainApp->colours.foreCol=FORE_BLACK;
 
 	playLists=new CTK_cursesChooserClass(mainApp,3,2,chooserWidth,chooserHite);
 	playLists->CTK_setShowFileTypes(".m3u;");

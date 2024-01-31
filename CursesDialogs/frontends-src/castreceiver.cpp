@@ -339,10 +339,10 @@ int main(int argc, char **argv)
 
 	oneLiner(false,"mkdir -p '%s' &>/dev/null",downloadFolder);
 	oneLiner(false,"touch '%s' &>/dev/null",recentName);
-	mainApp->colours.fancyGadgets=true;
-	mainApp->colours.windowBackCol=BACK_WHITE;
-	mainApp->colours.backCol=BACK_WHITE;
-	mainApp->colours.foreCol=FORE_BLACK;
+//	mainApp->colours.fancyGadgets=true;
+//	mainApp->colours.windowBackCol=BACK_WHITE;
+//	mainApp->colours.backCol=BACK_WHITE;
+//	mainApp->colours.foreCol=FORE_BLACK;
 
 	urlList=mainApp->CTK_addNewListBox(dialogSX,dialogSY,urlListWidth,urlListHite);
 	urlList->CTK_setSelectCB(selectURLCB,NULL);
